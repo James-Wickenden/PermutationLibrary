@@ -1,2 +1,2 @@
-# VB-Permutor
+# VB-PermutorTest
 A Visual Basic Permutation library to allow complex and custom permuting of generic objects.
