@@ -1,13 +1,13 @@
 ﻿Public Class PermutationLibrary(Of T)
-    'PermutationLibrary version 1.3 (25/09/2019)
-    'A Permutation library by James
+    'PermutationLibrary version 1.5 (30/09/2019)
+    'A Permutation library by James https://github.com/James-Wickenden/VB-Permutor
     'Provides framework to allow generic permuting of arrays, either with or without repetition.
     'The permutator can handle up to 255 possible values when streaming.
 
-    'Coming soon:
-    'Validation
-    'Informative Errors
-    'Parameter Guidelines
+    'TODO:
+    '   Wrong typed input validation
+    '   Parameter Guidelines
+    '   Config as DLL (?)
     Private sizeOfPermutation As Integer
     Private possibleValues() As T
     Private possibleValueIndices As List(Of Integer)
@@ -28,6 +28,31 @@
         Me.possibleValues = possibleValues
         Me.allowDuplicates = allowDuplicates
         configIndicesList()
+    End Sub
+
+    Public Sub validate(fromList As Boolean)
+        Dim exceptionStr As String = ""
+        If possibleValues.Count = 0 Then exceptionStr &=
+            "ERROR: [possibleValues] attribute must contain elements. "
+        If possibleValues.Count >= 255 Then exceptionStr &=
+            "ERROR: [possibleValues] attribute contains too many elements. "
+        If possibleValueIndices.Count = 0 Then exceptionStr &=
+            "ERROR: [possibleValueIndices] attribute must contain elements. Should be configured by changing the [possibleValues] attribute. "
+        If possibleValueIndices.Count >= 255 Then exceptionStr &=
+            "ERROR: [possibleValueIndices] attribute contains too many elements. Should be configured by changing the [possibleValues] attribute. "
+
+        If sizeOfPermutation < 0 Then exceptionStr &=
+            "ERROR: [sizeOfPermutation] attribute must be a positive integer. "
+        If sizeOfPermutation > possibleValues.Count And allowDuplicates = False Or
+           sizeOfPermutation > possibleValueIndices.Count And allowDuplicates = False Then exceptionStr &=
+            "ERROR: [sizeOfPermutation] attribute must be lower than magnitude of [possibleValues] if duplicate elements are not allowed. "
+
+        If fromList = True Then
+            Dim noPerms As Long = getNoOfPermutations()
+            If noPerms = -1 Or noPerms >= Math.Pow(2, 28) Then exceptionStr &= "ERROR: Too many permutations generated."
+        End If
+
+        If exceptionStr <> "" Then Throw New Exception(exceptionStr)
     End Sub
 
     'Sets up the indices list which is used for permuting corresponding integer indices instead of objects of type T.
@@ -197,9 +222,14 @@
 
     'Returns the number of permutations that the permutor will generate if called.
     'Calucates differently depending on whether duplicate elements are allowed.
+    'A return value of -1 indicates more than 2^64 results are returned by permuting.
     Public Function getNoOfPermutations() As Long
-        If Not allowDuplicates Then Return (factorial(possibleValues.Count)) / factorial(possibleValues.Count - sizeOfPermutation)
-        Return Math.Pow(possibleValues.Count, sizeOfPermutation)
+        Try
+            If Not allowDuplicates Then Return (factorial(possibleValues.Count)) / factorial(possibleValues.Count - sizeOfPermutation)
+            Return Math.Pow(possibleValues.Count, sizeOfPermutation)
+        Catch ex As Exception
+        End Try
+        Return -1
     End Function
 
     'Generates every permutation and streams it through [stream].
@@ -207,6 +237,8 @@
                                ByRef permutationAvle As Threading.Semaphore,
                                ByRef permutationPost As Threading.Semaphore,
                                ByRef permutationLock As Threading.Semaphore)
+        validate(False)
+
         Dim permutee As List(Of Integer) = initPermutingArray()
         stream.Capacity = sizeOfPermutation
         Do
@@ -221,7 +253,10 @@
 
     'Generates every permutation and returns it using a list.
     'This may fail if the number of permutations is too high and VB cannot handle the list; in this case, use permuteToStream().
+    '   (This occurs when the list reaches a 2GB object size or contains 2^28 references.)
     Public Function permuteToList() As List(Of T())
+        validate(True)
+
         Dim permutee As List(Of Integer) = initPermutingArray()
         Dim res As New List(Of T())
         Do
@@ -238,6 +273,7 @@
     'Faster but specific method of permuting an array of length [possibleValues.Count] without repetition. Works using recursion in basicPermutation().
     'Basic permuting through a stream is not implemented because I'm lazy.
     Public Function basicPermuteToList() As List(Of T())
+        validate(True)
         Dim res As New List(Of T())
         basicPermutation(res, possibleValueIndices.ToArray, possibleValueIndices.Count)
         Return res

@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D95CF472-7D01-4B15-AB6D-4802D4D49982}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <StartupObject>ConsoleApp1.Module1</StartupObject>
-    <RootNamespace>ConsoleApp1</RootNamespace>
+    <StartupObject>Permutor.TestPermutor</StartupObject>
+    <RootNamespace>Permutor</RootNamespace>
     <AssemblyName>PermutationLibrary</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Console</MyType>
@@ -82,9 +82,8 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExamplePermutor.vb" />
     <Compile Include="PermutationLibrary.vb" />
-    <Compile Include="Module1.vb" />
+    <Compile Include="TestPermutor.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
