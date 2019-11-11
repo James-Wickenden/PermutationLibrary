@@ -1,5 +1,5 @@
 ﻿Public Class PermutationLibrary(Of T)
-    'PermutationLibrary version 1.5 (30/09/2019)
+    'PermutationLibrary version 1.6 (11/11/2019)
     'A Permutation library by James https://github.com/James-Wickenden/VB-Permutor
     'Provides framework to allow generic permuting of arrays, either with or without repetition.
     'The permutator can handle up to 255 possible values when streaming.
@@ -8,10 +8,12 @@
     '   Wrong typed input validation
     '   Parameter Guidelines
     '   Config as DLL (?)
+    '   Make streamPermutor() private!
     Private sizeOfPermutation As Integer
     Private possibleValues() As T
     Private possibleValueIndices As List(Of Integer)
     Private allowDuplicates As Boolean
+    Private streamHandler As StreamHandler(Of T)
 
     '/////////////////////////
     'These methods relate to initialisation and configuration of permutor attributes.
@@ -232,11 +234,32 @@
         Return -1
     End Function
 
+    'Sets up the stream; call this first
+    Public Sub initStreamPermutor()
+        streamHandler = New StreamHandler(Of T)(Me)
+    End Sub
+
+    'Returns true if the stream is still active; use this to iterate through permutations
+    Public Function isStreamActive() As Boolean
+        If streamHandler Is Nothing Then Return False
+        Return streamHandler.streamActive
+    End Function
+
+    'Returns an array of the permutation and sets up the stream to send the next permutation
+    Public Function getPermutationFromStream() As T()
+        If streamHandler Is Nothing Then Return Nothing
+        If Not streamHandler.streamActive Then Return Nothing
+        Return streamHandler.getPermutation
+    End Function
+
     'Generates every permutation and streams it through [stream].
-    Public Sub permuteToStream(ByRef stream As System.IO.MemoryStream,
+    'The permutor is set up by the [streamHandler] created by initStreamPermutor().
+    'You should NOT call this function.
+    Public Sub streamPermutor(ByRef stream As System.IO.MemoryStream,
                                ByRef permutationAvle As Threading.Semaphore,
                                ByRef permutationPost As Threading.Semaphore,
                                ByRef permutationLock As Threading.Semaphore)
+
         validate(False)
 
         Dim permutee As List(Of Integer) = initPermutingArray()
@@ -249,6 +272,7 @@
 
         permutationAvle.WaitOne()
         stream.Close()
+        streamHandler = Nothing
     End Sub
 
     'Generates every permutation and returns it using a list.
@@ -278,41 +302,47 @@
         basicPermutation(res, possibleValueIndices.ToArray, possibleValueIndices.Count)
         Return res
     End Function
+End Class
 
-    '/////////////////////////
-    'The code below is a demonstration of how to set up and retrieve data from the stream when using permuteToStream().
-    'The Semaphore code around the critical section should NOT be altered to prevent deadlocking or crashing.
-    '/////////////////////////
+'/////////////////////////
+'This class provides a compact set of methods and attributes to make safely accessing the stream clean and simple.
+'/////////////////////////
+Public Class StreamHandler(Of T)
+    Private stream As System.IO.MemoryStream = New System.IO.MemoryStream()
+    Private permutationAvle, permutationPost, permutationLock As Threading.Semaphore
+    Private permutor As PermutationLibrary(Of T)
 
-    'Private Sub exampleStreamReceiver()
-    '    Dim stream As System.IO.Stream = New System.IO.MemoryStream()
-    '    Dim permutor As New PermutationLibrary(Of Integer)(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES)
+    'Constructor that configures semaphores for safe data transfer.
+    'Also initiates the new thread that computes permutations
+    Public Sub New(permutor As PermutationLibrary(Of T))
+        permutationAvle = New Threading.Semaphore(1, 1)
+        permutationPost = New Threading.Semaphore(0, 1)
+        permutationLock = New Threading.Semaphore(1, 1)
+        Dim permutationThread As New Threading.Thread(New Threading.ThreadStart(Sub() permutor.streamPermutor(stream, permutationAvle, permutationPost, permutationLock)))
 
-    '    Dim permutationAvle As New Threading.Semaphore(1, 1)
-    '    Dim permutationPost As New Threading.Semaphore(0, 1)
-    '    Dim permutationLock As New Threading.Semaphore(1, 1)
-    '    Dim permutationThread As New Threading.Thread(New Threading.ThreadStart(Sub() permutor.permuteToStream(stream, permutationAvle, permutationPost, permutationLock)))
+        Me.permutor = permutor
+        permutationThread.Start()
+    End Sub
 
-    '    permutationThread.Start()
+    'Returns true is the stream is active
+    Public Function streamActive() As Boolean
+        If stream.CanRead Then Return True
+        Return False
+    End Function
 
-    '    Dim permutationBytes(PERMUTATION_SIZE) As Byte
+    'Opens the lock, gets data from the stream, and closes it again for the permutor to post the next permutation.
+    'BUG: The returned bytes are of the wrong length and shortening it returns erroneous data.
+    '   A fix has been applied but its efficacy is not guaranteed!
+    Public Function getPermutation() As T()
+        Dim permutationBytes(permutor.getSizeOfPermutation) As Byte
 
-    '    Do
-    '        permutationPost.WaitOne()
-    '        permutationLock.WaitOne()
-    '        '/// CRITICAL SECTION START
-    '        stream.Position = 0
-    '        stream.Read(permutationBytes, 0, PERMUTATION_SIZE)
-    '        '/// CRITICAL SECTION END
-    '        permutationAvle.Release()
-    '        permutationLock.Release()
+        permutationPost.WaitOne()
+        permutationLock.WaitOne()
+        stream.Position = 0
+        stream.Read(permutationBytes, 0, permutor.getSizeOfPermutation)
+        permutationAvle.Release()
+        permutationLock.Release()
 
-    '        Dim streamedPermutation() As Integer = permutor.bytesToPermutee(permutationBytes)
-
-    ''        ///
-    ''        USE PERMUTATION HERE
-    ''        ///
-
-    '    Loop Until Not stream.CanRead
-    'End Sub
+        Return permutor.bytesToPermutee(permutationBytes.Take(permutationBytes.Length - 1).ToArray)
+    End Function
 End Class

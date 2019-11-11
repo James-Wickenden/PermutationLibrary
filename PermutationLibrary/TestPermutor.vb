@@ -24,7 +24,7 @@
         Dim perms As List(Of Char()) = permutor.permuteToList()
         For Each elem As Char() In perms
             For Each letter As Char In elem
-                Console.Write(letter & " ")
+                Console.Write(letter)
             Next
             Console.WriteLine()
         Next
@@ -35,31 +35,13 @@
 
     Private Sub testToStream()
         printVarArray("STREAM")
-        Dim stream As System.IO.Stream = New System.IO.MemoryStream()
 
-        Dim permutationAvle As New Threading.Semaphore(1, 1)
-        Dim permutationPost As New Threading.Semaphore(0, 1)
-        Dim permutationLock As New Threading.Semaphore(1, 1)
-        Dim permutationThread As New Threading.Thread(New Threading.ThreadStart(Sub() permutor.permuteToStream(stream, permutationAvle, permutationPost, permutationLock)))
+        permutor.initStreamPermutor()
+        While permutor.isStreamActive
+            Dim str As String = permutor.getPermutationFromStream()
+            Console.WriteLine(str)
+        End While
 
-        permutationThread.Start()
-
-        Dim permutationBytes(permutor.getSizeOfPermutation) As Byte
-
-        Do
-            permutationPost.WaitOne()
-            permutationLock.WaitOne()
-            stream.Position = 0
-            stream.Read(permutationBytes, 0, permutor.getSizeOfPermutation)
-            permutationAvle.Release()
-            permutationLock.Release()
-
-            Dim streamedPermutation() As Char = permutor.bytesToPermutee(permutationBytes)
-            For i As Integer = 0 To streamedPermutation.Length - 2
-                Console.Write(streamedPermutation(i) & " ")
-            Next
-            Console.WriteLine()
-        Loop Until Not stream.CanRead
         Console.WriteLine("STREAM TERMINATED")
         Console.WriteLine()
         Console.WriteLine("/////////////////////////")
@@ -71,7 +53,7 @@
         Dim perms As List(Of Char()) = permutor.basicPermuteToList()
         For Each elem As Char() In perms
             For Each letter As Char In elem
-                Console.Write(letter & " ")
+                Console.Write(letter)
             Next
             Console.WriteLine()
         Next
@@ -91,7 +73,7 @@
     Public Sub Main()
         Dim INPUT_VARARRAY() As Char = {"a", "b", "c", "d", "e"}
         Dim PERMUTATION_SIZE As Integer = 3
-        Dim ALLOW_DUPLICATES As Boolean = False
+        Dim ALLOW_DUPLICATES As Boolean = True
         'setInputAsAlphabet(INPUT_VARARRAY)
 
         permutor = New PermutationLibrary(Of Char)(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES)
@@ -101,7 +83,7 @@
         testToList()
         testBasicToList()
 
-        Console.WriteLine("FINISHED TESTS")
+        Console.WriteLine("FINISHED")
         Console.ReadLine()
     End Sub
 End Module
