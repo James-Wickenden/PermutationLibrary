@@ -9,6 +9,7 @@
     '   Parameter Guidelines
     '   Config as DLL (?)
     '   Make streamPermutor() private!
+    '   Add function to generate random permutation
     Private sizeOfPermutation As Integer
     Private possibleValues() As T
     Private possibleValueIndices As List(Of Integer)
