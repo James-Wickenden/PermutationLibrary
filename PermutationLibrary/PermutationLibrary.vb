@@ -1,5 +1,5 @@
 ﻿Public Class PermutationLibrary(Of T)
-    'PermutationLibrary version 1.6 (11/11/2019)
+    'PermutationLibrary version 1.7 (16/02/2020)
     'A Permutation library by James https://github.com/James-Wickenden/VB-Permutor
     'Provides framework to allow generic permuting of arrays, either with or without repetition.
     'The permutator can handle up to 255 possible values when streaming.
@@ -9,7 +9,8 @@
     '   Parameter Guidelines
     '   Config as DLL (?)
     '   Make streamPermutor() private!
-    '   Add function to generate random permutation
+    '   Clean Up Permutor Interface; Public Subs and Method Formatting
+
     Private sizeOfPermutation As Integer
     Private possibleValues() As T
     Private possibleValueIndices As List(Of Integer)
@@ -206,7 +207,7 @@
         Return permuteeCorrespondingIndices.ToArray
     End Function
 
-    'A recursive sub for "fast" (O(n!)) permutation. Works by simply repeating the recurive procedure for every element in the permutee.
+    'A recursive sub for (O(n!)) permutation. Works by simply repeating the recurive procedure for every element in the permutee.
     Private Sub basicPermutation(ByRef res As List(Of T()), ByRef permutee As Integer(), ByRef n As Integer)
         If n = 1 Then
             addResultToList(res, permutee.ToList)
@@ -218,6 +219,33 @@
             swap(permutee(i), permutee(n - 1))
         Next
     End Sub
+
+    'A simple function to generate a random permutation of length [sizeOfPermutation]. Can allow or disallow repeated elements.
+    'The seed is specified by the wrapper function getRandomPermutation(seed) method.
+    Private Function randomPermutation(ByVal generator As Random) As List(Of T)
+        Dim res As New List(Of T)
+
+        If (Not allowDuplicates) And (sizeOfPermutation > possibleValues.Length) Then
+            Throw New Exception("ERROR: [sizeOfPermutation] attribute must be lower than magnitude of [possibleValues] if duplicate elements are not allowed. ")
+        End If
+
+        For i As Integer = 1 To sizeOfPermutation
+            Dim index As Integer = generator.Next(0, possibleValues.Length)
+            If allowDuplicates Then
+                res.Add(possibleValues(index))
+            Else
+                Dim newval As Boolean = False
+                While Not newval
+                    If Not res.Contains(possibleValues(index)) Then
+                        newval = True
+                        res.Add(possibleValues(index))
+                    End If
+                    If Not newval Then index = generator.Next(0, possibleValues.Length)
+                End While
+            End If
+        Next
+        Return res
+    End Function
 
     '/////////////////////////
     'These methods provide the main interface for meaningful utilisation of the code.
@@ -251,6 +279,11 @@
         If streamHandler Is Nothing Then Return Nothing
         If Not streamHandler.streamActive Then Return Nothing
         Return streamHandler.getPermutation
+    End Function
+
+    'Returns an array of the random permutation generated using the given seed. The seed defaults to using the system tick counter if not specified.
+    Public Function getRandomPermutation(ByRef generator As Random) As T()
+        Return randomPermutation(generator).ToArray
     End Function
 
     'Generates every permutation and streams it through [stream].

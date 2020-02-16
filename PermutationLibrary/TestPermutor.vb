@@ -1,16 +1,28 @@
 ﻿Public Module TestPermutor
     Private permutor As PermutationLibrary(Of Char)
 
-    Private Sub printVarArray(transferType As String)
+    Private Sub printCharArray(A As Char())
+        Console.Write(A(0))
+        For i As Integer = 1 To A.Length - 1
+            Console.Write(", " & A(i))
+        Next
+        Console.WriteLine("}")
+    End Sub
+
+    Private Sub printVarArray(transferType As String, printAD As Boolean)
         Console.Write(transferType & " PERMUTATION SIZE " & permutor.getSizeOfPermutation & " OF {")
         Console.Write(permutor.getPossibleValues(0))
         For i As Integer = 1 To permutor.getPossibleValues.Length - 1
             Console.Write(", " & permutor.getPossibleValues(i).ToString)
         Next
         Console.Write("}")
-        If permutor.getAllowDuplicates Then Console.WriteLine("; DUPLICATE ELEMENTS ALLOWED")
-        If Not permutor.getAllowDuplicates Then Console.WriteLine("; DUPLICATE ELEMENTS NOT ALLOWED")
 
+        If printAD Then
+            If permutor.getAllowDuplicates Then Console.WriteLine("; DUPLICATE ELEMENTS ALLOWED")
+            If Not permutor.getAllowDuplicates Then Console.WriteLine("; DUPLICATE ELEMENTS NOT ALLOWED")
+        Else
+            Console.WriteLine()
+        End If
     End Sub
 
     Private Sub testNumberPermsCounter()
@@ -20,7 +32,7 @@
     End Sub
 
     Private Sub testToList()
-        printVarArray("LIST")
+        printVarArray("LIST", True)
         Dim perms As List(Of Char()) = permutor.permuteToList()
         For Each elem As Char() In perms
             For Each letter As Char In elem
@@ -34,7 +46,7 @@
     End Sub
 
     Private Sub testToStream()
-        printVarArray("STREAM")
+        printVarArray("STREAM", True)
 
         permutor.initStreamPermutor()
         While permutor.isStreamActive
@@ -49,7 +61,7 @@
     End Sub
 
     Private Sub testBasicToList()
-        printVarArray("FASTLIST")
+        printVarArray("FASTLIST", True)
         Dim perms As List(Of Char()) = permutor.basicPermuteToList()
         For Each elem As Char() In perms
             For Each letter As Char In elem
@@ -60,6 +72,29 @@
         Console.WriteLine()
         Console.WriteLine("/////////////////////////")
         Console.WriteLine()
+    End Sub
+
+    Private Sub testRandomPermutation()
+        printVarArray("RANDOM", False)
+
+        Dim rndPerm() As Char
+        Dim generator As New Random
+
+        permutor.setAllowDuplicates(True)
+        Console.WriteLine("DUPLICATES: ALLOWED")
+        For i As Integer = 0 To 10
+            rndPerm = permutor.getRandomPermutation(generator)
+            Console.Write(i & ": ")
+            printCharArray(rndPerm)
+        Next
+
+        permutor.setAllowDuplicates(False)
+        Console.WriteLine("DUPLICATES: NOT ALLOWED")
+        For i As Integer = 0 To 10
+            rndPerm = permutor.getRandomPermutation(generator)
+            Console.Write(i & ": ")
+            printCharArray(rndPerm)
+        Next
     End Sub
 
     Private Sub setInputAsAlphabet(ByRef INPUT_VARARRAY As Char())
@@ -82,6 +117,7 @@
         testToStream()
         testToList()
         testBasicToList()
+        testRandomPermutation()
 
         Console.WriteLine("FINISHED")
         Console.ReadLine()
