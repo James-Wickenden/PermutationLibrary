@@ -1,15 +1,5 @@
 ﻿Public Class PermutationLibrary(Of T)
-    'PermutationLibrary version 1.7 (16/02/2020)
-    'A Permutation library by James https://github.com/James-Wickenden/VB-Permutor
-    'Provides framework to allow generic permuting of arrays, either with or without repetition.
-    'The permutator can handle up to 255 possible values when streaming.
-
-    'TODO:
-    '   Wrong typed input validation
-    '   Parameter Guidelines
-    '   Config as DLL (?)
-    '   Make streamPermutor() private!
-    '   Clean Up Permutor Interface; Public Subs and Method Formatting
+    'https://github.com/James-Wickenden/VB-Permutor
 
     Private sizeOfPermutation As Integer
     Private possibleValues() As T
