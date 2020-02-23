@@ -32,7 +32,7 @@
     End Sub
 
     Private Sub testToList()
-        printVarArray("LIST", True)
+        printVarArray("LIST", True)S
         Dim perms As List(Of Char()) = permutor.permuteToList()
         For Each elem As Char() In perms
             For Each letter As Char In elem
