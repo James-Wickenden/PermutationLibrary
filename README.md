@@ -34,6 +34,26 @@ A class testing the library and demonstrating some of its functionality can be s
 
 There are several parameters held by the Permutor which determine the output of functions.
 
+- `Integer sizeOfPermutation`
+
+    This controls the number of elements in the returned permutations.
+
+    For example, with `sizeOfPermutation = 3`, a returned permutation could be `{a, b, c}`, but not `{a, b, c, d}` or `{a, b}`.
+
+- `T possibleValues()`
+
+    This is the set of possible values that can be returned from. The typing of this must be the same as the type given to the permutor when instantiating.
+
+    For example, with `possibleValues = {a, b, c}`, a returned permutation could be `{c, a, b}` but not `{c, a, d}`.
+
+- `Boolean allowDuplicates`
+
+    This boolean flag controls whether duplicate elements are allowed in returned permutations.
+
+    For example, if `allowDuplicates = True`, a returned permutation could be `{a, a, a}`, but not if the permutor was set to `allowDuplicates = False`.
+
+    The `allowDuplicates` flag is ignored when calling `basicPermuteToList()`. This is explained in more detail below.
+
 ## Methods
 
 - Constructor (for generic type T):
@@ -46,6 +66,8 @@ There are several parameters held by the Permutor which determine the output of 
 
     permutor = New PermutationLibrary(Of T)(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES)
     ```
+
+    The constructor instantiates the permutor using the given parameters. T is a generic typing.
 
 - Get number of permutations as a Long:
 
