@@ -112,6 +112,7 @@
         'setInputAsAlphabet(INPUT_VARARRAY)
 
         permutor = New PermutationLibrary(Of Char)(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES)
+        permutor.validate(True)
 
         testNumberPermsCounter()
         testToStream()

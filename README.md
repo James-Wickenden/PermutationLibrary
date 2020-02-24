@@ -125,3 +125,26 @@ There are several parameters held by the Permutor which determine the output of 
     ```
 
     This function returns a random permutation using the given Random object and the parameters held by the Permutor.
+
+- Reconfigure the parameters:
+
+    ```VB
+    Dim INPUT_VARARRAY() As T
+    Dim PERMUTATION_SIZE As Integer
+    Dim ALLOW_DUPLICATES As Boolean
+
+    permutor.configure(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES)
+    ```
+
+    This function sets the flags in the permutor to the new values given as parameters.
+
+- Validate the permutor:
+
+    ```VB
+    permutor.validate(True)
+    ```
+
+    Validates the permutor given the current internal parameters, causing an exception if any errors are found that would prevent the permutor from working. This function is called before permuting anyway so it is not necessary to call before every permutation.
+
+    The parameter `fromList As Boolean` should be set to true if you intend to call `permuteToList()` to ensure that it can return the List safely without running out of memory.
+    

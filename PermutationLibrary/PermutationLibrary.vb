@@ -346,6 +346,7 @@ Public Class StreamHandler(Of T)
 
         Me.permutor = permutor
         permutationThread.Start()
+
     End Sub
 
     'Returns true is the stream is active
