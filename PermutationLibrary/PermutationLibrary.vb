@@ -1,4 +1,5 @@
-﻿Public Class PermutationLibrary(Of T)
+﻿Option Strict On
+Public Class PermutationLibrary(Of T)
     'https://github.com/James-Wickenden/VB-Permutor
 
     Private sizeOfPermutation As Integer
@@ -90,7 +91,7 @@
         Return possibleValues.ToArray
     End Function
 
-    Public Function getAllowDuplicates()
+    Public Function getAllowDuplicates() As Boolean
         Return allowDuplicates
     End Function
 
@@ -182,7 +183,7 @@
     Public Function permuteeToBytes(permutee() As Integer) As Byte()
         Dim permuteeCorrespondingIndices As New List(Of Byte)
         For Each x As Integer In permutee
-            permuteeCorrespondingIndices.Add(x)
+            permuteeCorrespondingIndices.Add(CByte(x))
         Next
         Return permuteeCorrespondingIndices.ToArray
     End Function
@@ -246,8 +247,8 @@
     'A return value of -1 indicates more than 2^64 results are returned by permuting.
     Public Function getNoOfPermutations() As Long
         Try
-            If Not allowDuplicates Then Return (factorial(possibleValues.Count)) / factorial(possibleValues.Count - sizeOfPermutation)
-            Return Math.Pow(possibleValues.Count, sizeOfPermutation)
+            If Not allowDuplicates Then Return CLng((factorial(possibleValues.Count)) / factorial(possibleValues.Count - sizeOfPermutation))
+            Return CLng(Math.Pow(possibleValues.Count, sizeOfPermutation))
         Catch ex As Exception
         End Try
         Return -1

@@ -20,11 +20,9 @@ A class testing the library and demonstrating some of its functionality can be s
 
 ---
 
-- Input validation for typing
 - Add parameter guidelines/ descriptions
-- Config library as DLL (?)
-- Make streamPermutor() private!
-- Clean Up Permutor Interface; Public Subs and Method Formatting
+- Config library (as DLL (?))
+- Ensure mostly compliant with Standards given by [https://en.wikibooks.org/wiki/Visual_Basic/Coding_Standards](https://en.wikibooks.org/wiki/Visual_Basic/Coding_Standards)
 
 ## Functionality
 
