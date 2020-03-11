@@ -6,7 +6,7 @@
 
 A Visual Basic Permutation library to allow complex and custom permuting of generic objects.
 
-PermutationLibrary Version 1.8 (16/02/2020)
+PermutationLibrary Version 1.9 (16/02/2020)
 
 The online repository is available at <https://github.com/James-Wickenden/VB-Permutor>
 
@@ -21,8 +21,9 @@ A class testing the library and demonstrating some of its functionality can be s
 ---
 
 - Add parameter guidelines/ descriptions
-- Config library (as DLL (?))
+- Config library according to [https://docs.microsoft.com/en-us/dotnet/core/tutorials/library-with-visual-studio?tabs=vb](https://docs.microsoft.com/en-us/dotnet/core/tutorials/library-with-visual-studio?tabs=vb)
 - Ensure mostly compliant with Standards given by [https://en.wikibooks.org/wiki/Visual_Basic/Coding_Standards](https://en.wikibooks.org/wiki/Visual_Basic/Coding_Standards)
+- Configure error messages according to an error message resource table.
 
 ## Functionality
 
