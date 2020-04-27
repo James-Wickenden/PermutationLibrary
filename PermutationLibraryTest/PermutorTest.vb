@@ -44,7 +44,7 @@ Namespace PermutationLibraryTest
         End Sub
 
         <TestMethod>
-        Sub TestWellFormedIntPermutor_ToList()
+        Sub TestWellFormedIntegerPermutor_ToList()
             ' This test permutes Integers to a list, ensuring the result is correct.
 
             Dim permutor As New Permutor(Of Integer)(2, {0, 1, 2, 3, 4, 5}, True)
@@ -135,6 +135,13 @@ Namespace PermutationLibraryTest
 
             Dim permutor As Permutor(Of Char)
 
+            'permutor = New Permutor(Of Char)(Nothing, {"a"}, False)
+            'Assert.ThrowsException(Of Exception)(Sub() permutor.Validate(True))
+            permutor = New Permutor(Of Char)(1, Nothing, False)
+            Assert.ThrowsException(Of Exception)(Sub() permutor.Validate(True))
+            'permutor = New Permutor(Of Char)(1, {"a"}, Nothing)
+            'Assert.ThrowsException(Of Exception)(Sub() permutor.Validate(True))
+
             permutor = New Permutor(Of Char)(2, {}, True)
             Assert.ThrowsException(Of Exception)(Sub() permutor.Validate(True))
 
@@ -161,7 +168,6 @@ Namespace PermutationLibraryTest
 
         <TestMethod>
         Sub TestWellFormedObjectPermutor_ToStream()
-
             ' This test permutes complex objects through a stream, ensuring the result is correct.
             ' Streaming in unit tests appear to be buggy so this is skipped once validated.
 
@@ -198,6 +204,106 @@ Namespace PermutationLibraryTest
             'Assert.AreEqual(permuted_ACTUAL.Count, permuted_EXPECTED.Count)
             'Assert.AreEqual(permuted_ACTUAL.Count, CInt(permutor.GetNoOfPermutations))
             'MatchTestObjectResults(permuted_ACTUAL, permuted_EXPECTED)
+        End Sub
+
+        <TestMethod>
+        Sub TestIdenticalElementsInPossibleValues()
+            ' Elements with the same value should be allowed in a permutor without it discounting them for being duplicate.
+
+            Dim permutor As New Permutor(Of Integer)(3, {1, 2, 2}, False)
+
+            Dim permuted_ACTUAL As List(Of Integer()) = permutor.PermuteToList
+            Dim permuted_EXPECTED As New List(Of Integer())
+
+            permuted_EXPECTED.Add({1, 2, 2})
+            permuted_EXPECTED.Add({1, 2, 2})
+            permuted_EXPECTED.Add({2, 2, 1})
+            permuted_EXPECTED.Add({2, 2, 1})
+            permuted_EXPECTED.Add({2, 1, 2})
+            permuted_EXPECTED.Add({2, 1, 2})
+
+            Assert.AreEqual(permuted_ACTUAL.Count, permuted_EXPECTED.Count)
+            Assert.AreEqual(permuted_ACTUAL.Count, CInt(permutor.GetNoOfPermutations))
+            MatchIntegerResults(permuted_ACTUAL, permuted_EXPECTED)
+
+            permutor.SetAllowDuplicates(True)
+            permuted_ACTUAL = permutor.PermuteToList
+
+            Assert.AreEqual(permuted_ACTUAL.Count, 27)
+            Assert.AreEqual(permuted_ACTUAL.Count, CInt(permutor.GetNoOfPermutations))
+        End Sub
+
+        <TestMethod>
+        Sub TestDispose()
+            ' Ensures that the Dispose() method is safe.
+
+            Dim permutor As New Permutor(Of Integer)(Nothing, Nothing, Nothing)
+            Assert.IsNotNull(permutor)
+            permutor.Dispose()
+
+            permutor = New Permutor(Of Integer)(1, {1, 2, 3}, False)
+            Assert.IsNotNull(permutor)
+            Dim permuted_ACTUAL As List(Of Integer()) = permutor.PermuteToList
+            Assert.AreEqual(3, permuted_ACTUAL.Count)
+        End Sub
+
+        <TestMethod>
+        Sub TestGettersAndSetters()
+            ' Ensures the getters, setters and configure methods are valid.
+
+            Dim permutor As New Permutor(Of Integer)(Nothing, Nothing, Nothing)
+
+            permutor.SetAllowDuplicates(True)
+            Assert.IsTrue(permutor.GetAllowDuplicates)
+            permutor.SetAllowDuplicates(False)
+            Assert.IsFalse(permutor.GetAllowDuplicates)
+
+            permutor.SetSizeOfPermutation(1)
+            Assert.AreEqual(1, permutor.GetSizeOfPermutation)
+            permutor.SetSizeOfPermutation(5)
+            Assert.AreEqual(5, permutor.GetSizeOfPermutation)
+
+            permutor.SetPossibleValues({1, 2, 3, 4, 5, 6, 7, 8, 9})
+            For i As Integer = 0 To permutor.GetPossibleValues.Length - 1
+                Assert.AreEqual(i + 1, permutor.GetPossibleValues(i))
+            Next
+
+            permutor.SetPossibleValues({1, 2, 3, 4, 5})
+            For i As Integer = 0 To permutor.GetPossibleValues.Length - 1
+                Assert.AreEqual(i + 1, permutor.GetPossibleValues(i))
+            Next
+
+            permutor.Configure(1, {1, 2, 3}, False)
+            Assert.AreEqual(1, permutor.GetSizeOfPermutation)
+            Assert.IsFalse(permutor.GetAllowDuplicates)
+            For i As Integer = 0 To permutor.GetPossibleValues.Length - 1
+                Assert.AreEqual(i + 1, permutor.GetPossibleValues(i))
+            Next
+        End Sub
+
+        <TestMethod>
+        Sub TestGetRandomPermutation()
+            ' This test pulls a random permutation and ensures it is well formed, of the correct length, and could not contain duplicates.
+
+            Dim permutor As New Permutor(Of String)(3, {"Apple", "Banana", "Coconut"}, True)
+            Dim permuted_ACTUAL As String()
+            Dim generator As New Random
+
+            ' Randomly get permutations with duplicates
+            permutor.SetAllowDuplicates(True)
+            For i As Integer = 0 To 10
+                permuted_ACTUAL = permutor.GetRandomPermutation(generator)
+                Assert.AreEqual(permuted_ACTUAL.Length, 3)
+                Assert.IsTrue(permuted_ACTUAL.Contains("Apple") Or permuted_ACTUAL.Contains("Banana") Or permuted_ACTUAL.Contains("Coconut"))
+            Next
+
+            ' Randomly get permutations without duplicates
+            permutor.SetAllowDuplicates(False)
+            For i As Integer = 0 To 10
+                permuted_ACTUAL = permutor.GetRandomPermutation(generator)
+                Assert.AreEqual(permuted_ACTUAL.Length, 3)
+                Assert.IsTrue(permuted_ACTUAL.Contains("Apple") And permuted_ACTUAL.Contains("Banana") And permuted_ACTUAL.Contains("Coconut"))
+            Next
         End Sub
 
         ' These are not tests but methods that assist test execution.

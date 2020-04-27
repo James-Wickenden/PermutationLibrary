@@ -31,22 +31,33 @@ Namespace PermutationLibrary
             ConfigIndicesList()
         End Sub
 
-        Public Sub Validate(fromList As Boolean)
+        Public Sub Validate(Optional fromList As Boolean = False)
             Dim exceptionStr As String = ""
+            If IsNothing(allowDuplicates) Then exceptionStr &=
+                "ERROR: [allowDuplicates] attribute must not be null. "
+            If IsNothing(sizeOfPermutation) Then exceptionStr &=
+                "ERROR: [sizeOfPermutation] attribute must not be null. "
+            If IsNothing(possibleValues) Then exceptionStr &=
+                "ERROR: [possibleValues] attribute must not be null. "
+            If IsNothing(possibleValueIndices) Then exceptionStr &=
+                "ERROR: [possibleValueIndices] attribute must not be null. Should be configured by changing the [possibleValues] attribute. "
+
+            If exceptionStr <> "" Then Throw New Exception(exceptionStr)
+
             If possibleValues.Length = 0 Then exceptionStr &=
-            "ERROR: [possibleValues] attribute must contain elements. "
+                "ERROR: [possibleValues] attribute must contain elements. "
             If possibleValues.Length >= 255 Then exceptionStr &=
-            "ERROR: [possibleValues] attribute contains too many elements. "
+             "ERROR: [possibleValues] attribute contains too many elements. "
             If possibleValueIndices.Count = 0 Then exceptionStr &=
-            "ERROR: [possibleValueIndices] attribute must contain elements. Should be configured by changing the [possibleValues] attribute. "
+             "ERROR: [possibleValueIndices] attribute must contain elements. Should be configured by changing the [possibleValues] attribute. "
             If possibleValueIndices.Count >= 255 Then exceptionStr &=
-            "ERROR: [possibleValueIndices] attribute contains too many elements. Should be configured by changing the [possibleValues] attribute. "
+               "ERROR: [possibleValueIndices] attribute contains too many elements. Should be configured by changing the [possibleValues] attribute. "
 
             If sizeOfPermutation < 0 Then exceptionStr &=
-            "ERROR: [sizeOfPermutation] attribute must be a positive integer. "
+              "ERROR: [sizeOfPermutation] attribute must be a positive integer. "
             If sizeOfPermutation > possibleValues.Length And allowDuplicates = False Or
            sizeOfPermutation > possibleValueIndices.Count And allowDuplicates = False Then exceptionStr &=
-            "ERROR: [sizeOfPermutation] attribute must be lower than magnitude of [possibleValues] if duplicate elements are not allowed. "
+               "ERROR: [sizeOfPermutation] attribute must be lower than magnitude of [possibleValues] if duplicate elements are not allowed. "
 
             If fromList = True Then
                 Dim noPerms As Long = GetNoOfPermutations()
@@ -58,6 +69,7 @@ Namespace PermutationLibrary
 
         'Sets up the indices list which is used for permuting corresponding integer indices instead of objects of type T.
         Private Sub ConfigIndicesList()
+            If possibleValues Is Nothing Then Exit Sub
             Dim x As Integer = 0
             possibleValueIndices.Clear()
             For Each elem As T In possibleValues
@@ -290,7 +302,6 @@ Namespace PermutationLibrary
 
         'Generates every permutation and streams it through [stream].
         'The permutor is set up by the [streamHandler] created by InitStreamPermutor().
-        'You should NOT call this function.
         Private Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
                                ByRef permutationAvle As Threading.Semaphore,
                                ByRef permutationPost As Threading.Semaphore,
