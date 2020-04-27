@@ -161,9 +161,6 @@ Namespace PermutationLibraryTest
             permutor = New Permutor(Of Char)(2, {"test"}, True)
             permutor.SetSizeOfPermutation(-1)
             Assert.ThrowsException(Of Exception)(Sub() permutor.BasicPermuteToList())
-
-            permutor = New Permutor(Of Char)(200, charList.Take(254).ToArray, True)
-            Assert.ThrowsException(Of Exception)(Sub() permutor.Validate(True))
         End Sub
 
         <TestMethod>

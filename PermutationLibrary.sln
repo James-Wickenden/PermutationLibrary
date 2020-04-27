@@ -10,7 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PermutationLibraryTest", "PermutationLibraryTest\PermutationLibraryTest.vbproj", "{CDD0FB8A-B44E-4A02-ACA7-56817290186C}"
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "PermutationLibraryTest", "PermutationLibraryTest\PermutationLibraryTest.vbproj", "{CDD0FB8A-B44E-4A02-ACA7-56817290186C}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "PermutationLibraryShowcase", "PermutationLibraryShowcase\PermutationLibraryShowcase.vbproj", "{E6976129-D4AC-44AA-8E75-F5770B2554B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +28,10 @@ Global
 		{CDD0FB8A-B44E-4A02-ACA7-56817290186C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CDD0FB8A-B44E-4A02-ACA7-56817290186C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDD0FB8A-B44E-4A02-ACA7-56817290186C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6976129-D4AC-44AA-8E75-F5770B2554B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6976129-D4AC-44AA-8E75-F5770B2554B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6976129-D4AC-44AA-8E75-F5770B2554B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6976129-D4AC-44AA-8E75-F5770B2554B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

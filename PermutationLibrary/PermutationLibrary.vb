@@ -117,7 +117,7 @@ Namespace PermutationLibrary
         'These methods provide basic mathematical and logical functionality.
         '/////////////////////////
 
-        Private Function Factorial(x As Long) As Long
+        Private Function Factorial(x As System.Numerics.BigInteger) As System.Numerics.BigInteger
             If x <= 1 Then Return 1
             Return x * Factorial(x - 1)
         End Function
@@ -268,99 +268,109 @@ Namespace PermutationLibrary
         'A return value of -1 indicates more than 2^64 results are returned by permuting.
         Public Function GetNoOfPermutations() As Long
             Try
-                If Not allowDuplicates Then Return CLng((Factorial(possibleValues.Length)) / Factorial(possibleValues.Length - sizeOfPermutation))
-                Return CLng(Math.Pow(possibleValues.Length, sizeOfPermutation))
-            Catch ex As Exception
-                Throw New Exception
+                If Not allowDuplicates Then
+                    Dim numerator As System.Numerics.BigInteger = Factorial(possibleValues.Length)
+                    Dim denominator As System.Numerics.BigInteger = Factorial(possibleValues.Length - sizeOfPermutation)
+                    Dim res As System.Numerics.BigInteger = System.Numerics.BigInteger.Divide(numerator, denominator)
+
+                    Return CLng(res)
+                Else
+                    Dim res As New System.Numerics.BigInteger(Math.Pow(possibleValues.Length, sizeOfPermutation))
+
+                    Return CLng(res)
+                End If
+
+            Catch ex As ArgumentOutOfRangeException
+                Return -1
             End Try
             Return -1
-        End Function
+            End Function
 
-        'Sets up the stream; call this first
-        Public Sub InitStreamPermutor()
-            streamHandler = New PermutorStreamHandler(Me)
-        End Sub
+            'Sets up the stream; call this first
+            Public Sub InitStreamPermutor()
+                streamHandler = New PermutorStreamHandler(Me)
+            End Sub
 
-        'Returns true if the stream is still active; use this to iterate through permutations
-        Public Function IsStreamActive() As Boolean
-            If streamHandler Is Nothing Then Return False
-            Return streamHandler.StreamActive
-        End Function
+            'Returns true if the stream is still active; use this to iterate through permutations
+            Public Function IsStreamActive() As Boolean
+                If streamHandler Is Nothing Then Return False
+                Return streamHandler.StreamActive
+            End Function
 
-        'Returns an array of the permutation and sets up the stream to send the next permutation
-        Public Function GetPermutationFromStream() As T()
-            If streamHandler Is Nothing Then Return Nothing
-            If Not streamHandler.StreamActive Then Return Nothing
-            Return streamHandler.GetPermutation
-        End Function
+            'Returns an array of the permutation and sets up the stream to send the next permutation
+            Public Function GetPermutationFromStream() As T()
+                If streamHandler Is Nothing Then Return Nothing
+                If Not streamHandler.StreamActive Then Return Nothing
+                Return streamHandler.GetPermutation
+            End Function
 
-        'Returns an array of the random permutation generated using the given seed. The seed defaults to using the system tick counter if not specified.
-        Public Function GetRandomPermutation(ByRef generator As Random) As T()
-            If generator Is Nothing Then Throw New Exception
-            Return RandomPermutation(generator).ToArray
-        End Function
+            'Returns an array of the random permutation generated using the given seed. The seed defaults to using the system tick counter if not specified.
+            Public Function GetRandomPermutation(ByRef generator As Random) As T()
+                If generator Is Nothing Then Throw New Exception
+                Return RandomPermutation(generator).ToArray
+            End Function
 
-        'Generates every permutation and streams it through [stream].
-        'The permutor is set up by the [streamHandler] created by InitStreamPermutor().
-        Private Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
+            'Generates every permutation and streams it through [stream].
+            'The permutor is set up by the [streamHandler] created by InitStreamPermutor().
+            Private Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
                                ByRef permutationAvle As Threading.Semaphore,
                                ByRef permutationPost As Threading.Semaphore,
                                ByRef permutationLock As Threading.Semaphore)
 
-            Validate(False)
-            If stream Is Nothing Then Throw New Exception
-            If permutationAvle Is Nothing Or permutationPost Is Nothing Or permutationLock Is Nothing Then Throw New Exception
+                Validate(False)
+                If stream Is Nothing Then Throw New Exception
+                If permutationAvle Is Nothing Or permutationPost Is Nothing Or permutationLock Is Nothing Then Throw New Exception
 
-            Dim permutee As List(Of Integer) = InitPermutingArray()
-            stream.Capacity = sizeOfPermutation
-            Do
+                Dim permutee As List(Of Integer) = InitPermutingArray()
+                stream.Capacity = sizeOfPermutation
+                Do
+                    OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
+                    FindNextPermutation(permutee)
+                Loop Until PermuteeContainsOnlyFinalElement(permutee)
                 OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
-                FindNextPermutation(permutee)
-            Loop Until PermuteeContainsOnlyFinalElement(permutee)
-            OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
 
-            permutationAvle.WaitOne()
-            stream.Close()
-            streamHandler = Nothing
-        End Sub
+                permutationAvle.WaitOne()
+                stream.Close()
+                streamHandler = Nothing
+            End Sub
 
-        'Generates every permutation and returns it using a list.
-        'This may fail if the number of permutations is too high and VB cannot handle the list; in this case, use PermuteToStream().
-        '   (This occurs when the list reaches a 2GB object size or contains 2^28 references.)
-        Public Function PermuteToList() As List(Of T())
-            Validate(True)
+            'Generates every permutation and returns it using a list.
+            'This may fail if the number of permutations is too high and VB cannot handle the list; in this case, use PermuteToStream().
+            '   (This occurs when the list reaches a 2GB object size or contains 2^28 references.)
+            Public Function PermuteToList() As List(Of T())
+                Validate(True)
 
-            Dim permutee As List(Of Integer) = InitPermutingArray()
-            Dim res As New List(Of T())
-            Do
+                Dim permutee As List(Of Integer) = InitPermutingArray()
+                Dim res As New List(Of T())
+                Do
+                    If Not allowDuplicates And permutee.Distinct.Count = permutee.Count Then AddResultToList(res, permutee)
+                    If allowDuplicates Then AddResultToList(res, permutee)
+                    FindNextPermutation(permutee)
+                Loop Until PermuteeContainsOnlyFinalElement(permutee)
                 If Not allowDuplicates And permutee.Distinct.Count = permutee.Count Then AddResultToList(res, permutee)
                 If allowDuplicates Then AddResultToList(res, permutee)
-                FindNextPermutation(permutee)
-            Loop Until PermuteeContainsOnlyFinalElement(permutee)
-            If Not allowDuplicates And permutee.Distinct.Count = permutee.Count Then AddResultToList(res, permutee)
-            If allowDuplicates Then AddResultToList(res, permutee)
 
-            Return res
-        End Function
+                Return res
+            End Function
 
-        'Faster but specific method of permuting an array of length [possibleValues.Count] without repetition. Works using recursion in BasicPermutation().
-        'Basic permuting through a stream is not implemented because I'm lazy.
-        Public Function BasicPermuteToList() As List(Of T())
-            Validate(True)
-            Dim res As New List(Of T())
-            BasicPermutation(res, possibleValueIndices.ToArray, possibleValueIndices.Count)
-            Return res
-        End Function
+            'Faster but specific method of permuting an array of length [possibleValues.Count] without repetition. Works using recursion in BasicPermutation().
+            'Basic permuting through a stream is not implemented because I'm lazy.
+            Public Function BasicPermuteToList() As List(Of T())
+                Validate(True)
+                Dim res As New List(Of T())
+                BasicPermutation(res, possibleValueIndices.ToArray, possibleValueIndices.Count)
+                Return res
+            End Function
 
-        Protected Overridable Sub Dispose(disposing As Boolean)
-            If disposed Then Return
-            If disposing Then
-                If streamHandler IsNot Nothing Then streamHandler.Dispose()
+            Protected Overridable Sub Dispose(disposing As Boolean)
+                If disposed Then Return
+                If disposing Then
+                    If streamHandler IsNot Nothing Then streamHandler.Dispose()
 
-            End If
+                End If
 
-            disposed = True
-        End Sub
+                disposed = True
+            End Sub
 
         Public Sub Dispose() Implements IDisposable.Dispose
             Dispose(True)
