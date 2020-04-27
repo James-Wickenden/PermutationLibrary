@@ -120,6 +120,37 @@ Namespace PermutationLibraryTest
             MatchTestObjectResults(permuted_ACTUAL, permuted_EXPECTED)
         End Sub
 
+        <TestMethod>
+        Sub TestMalformedPermutor()
+            Dim permutor As Permutor(Of Char)
+
+            permutor = New Permutor(Of Char)(2, {}, True)
+            Assert.ThrowsException(Of Exception)(Sub() permutor.Validate(True))
+
+            permutor = New Permutor(Of Char)(-1.2, {"a", "b"}, True)
+            Assert.ThrowsException(Of Exception)(Sub() permutor.Validate(True))
+
+            permutor = New Permutor(Of Char)(3, {"a", "b"}, False)
+            Assert.ThrowsException(Of Exception)(Sub() permutor.Validate(True))
+
+            Dim charList As New List(Of Char)
+            For i As Integer = 0 To 256
+                charList.Add(CChar("a"))
+            Next
+            permutor = New Permutor(Of Char)(3, charList.ToArray, True)
+            Assert.ThrowsException(Of Exception)(Sub() permutor.Validate(True))
+
+            permutor = New Permutor(Of Char)(2, {"test"}, True)
+            permutor.SetSizeOfPermutation(-1)
+            Assert.ThrowsException(Of Exception)(Sub() permutor.BasicPermuteToList())
+
+            permutor = New Permutor(Of Char)(200, charList.Take(254).ToArray, True)
+            Assert.ThrowsException(Of Exception)(Sub() permutor.Validate(True))
+
+
+        End Sub
+
+
         Private Sub MatchStringResults(permuted_ACTUAL As List(Of Char()), permuted_EXPECTED As List(Of Char()))
             For Each elem_EXPECTED As Char() In permuted_EXPECTED
                 Dim foundMatch As Boolean = False
