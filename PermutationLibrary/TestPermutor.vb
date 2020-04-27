@@ -88,7 +88,7 @@ Public Module TestPermutor
         For i As Integer = 0 To 10
             rndPerm = permutor.getRandomPermutation(generator)
             Console.Write(i & ": ")
-            printCharArray(rndPerm)
+            Console.WriteLine(rndPerm)
         Next
 
         permutor.setAllowDuplicates(False)
@@ -96,7 +96,7 @@ Public Module TestPermutor
         For i As Integer = 0 To 10
             rndPerm = permutor.getRandomPermutation(generator)
             Console.Write(i & ": ")
-            printCharArray(rndPerm)
+            Console.WriteLine(rndPerm)
         Next
     End Sub
 
@@ -110,22 +110,22 @@ Public Module TestPermutor
 
     Private Sub CustomTest()
 
-        'Dim testObjects(5) As TestObject
-        'For i As Integer = 0 To 5
-        '    testObjects(i) = New TestObject(CDec(i))
-        'Next
+        Dim testObjects(5) As TestObject
+        For i As Integer = 0 To 5
+            testObjects(i) = New TestObject(CDec(i))
+        Next
 
-        'Dim permutor2 As New Permutor(Of TestObject)(2, testObjects, True)
-        'Dim permuted_ACTUAL As List(Of TestObject()) = permutor2.PermuteToList()
+        Dim permutor2 As New Permutor(Of TestObject)(2, testObjects, True)
+        Dim permuted_ACTUAL As List(Of TestObject()) = permutor2.PermuteToList()
 
-        'For Each elem As TestObject() In permuted_ACTUAL
-        '    For i As Integer = 0 To elem.Length - 1
-        '        Console.Write(elem(i).val)
+        For Each elem As TestObject() In permuted_ACTUAL
+            For i As Integer = 0 To elem.Length - 1
+                Console.Write(elem(i).val)
 
-        '    Next
-        '    Console.WriteLine()
-        'Next
-
+            Next
+            Console.WriteLine()
+        Next
+        permutor2.Dispose()
     End Sub
 
     Public Sub Main()
@@ -138,11 +138,11 @@ Public Module TestPermutor
         permutor.validate(True)
 
         CustomTest()
-        'TestNumberPermsCounter()
-        'TestToStream()
-        'TestToList()
-        'TestBasicToList()
-        'TestRandomPermutation()
+        TestNumberPermsCounter()
+        TestToStream()
+        TestToList()
+        TestBasicToList()
+        TestRandomPermutation()
 
         Console.WriteLine("FINISHED")
         Console.ReadLine()

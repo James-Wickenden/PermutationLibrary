@@ -5,6 +5,7 @@ Namespace PermutationLibraryTest
 
     <TestClass>
     Public Class PermutorTest
+        ' This is a basic class used to demonstrate that the Permutor can permute complex custom objects.
         Private Class TestObject
             Public val As Decimal
             Public Sub New(val)
@@ -14,6 +15,8 @@ Namespace PermutationLibraryTest
 
         <TestMethod>
         Sub TestWellFormedCharPermutor_ToList()
+            ' This test permutes chars to a list, ensuring the result is correct.
+
             Dim permutor As New Permutor(Of Char)(2, {"a", "b", "c"}, True)
             Dim permuted_ACTUAL As List(Of Char())
             Dim permuted_EXPECTED As List(Of Char())
@@ -42,6 +45,8 @@ Namespace PermutationLibraryTest
 
         <TestMethod>
         Sub TestWellFormedIntPermutor_ToList()
+            ' This test permutes Integers to a list, ensuring the result is correct.
+
             Dim permutor As New Permutor(Of Integer)(2, {0, 1, 2, 3, 4, 5}, True)
             Dim permuted_ACTUAL As List(Of Integer())
             Dim permuted_EXPECTED As List(Of Integer())
@@ -69,6 +74,9 @@ Namespace PermutationLibraryTest
 
         <TestMethod>
         Sub TestWellFormedCharPermutor_BasicToList()
+            ' This test permutes chars to a list, ensuring the result is correct.
+            ' This uses the quick BasicToList() algorithm which does not use permutationSize or allow duplicates.
+
             Dim permutor As New Permutor(Of Char)(1, {"a", "b", "c"}, True)
             Dim permuted_ACTUAL As List(Of Char())
             Dim permuted_EXPECTED As List(Of Char())
@@ -89,6 +97,7 @@ Namespace PermutationLibraryTest
         Sub TestWellFormedObjectPermutor_ToList()
             ' This test uses a vague test object that contains a decimal attribute, defined at the top of the class.
             ' The generic typing allows the Permutor to permute complex objects.
+
             Dim testObjects(5) As TestObject
             For i As Integer = 0 To 5
                 testObjects(i) = New TestObject(CDec(i))
@@ -98,7 +107,7 @@ Namespace PermutationLibraryTest
             Dim permuted_ACTUAL As List(Of TestObject())
             Dim permuted_EXPECTED As List(Of TestObject())
 
-            ' Duplicate elements not allowed
+            ' Duplicate elements allowed
             permutor.SetAllowDuplicates(True)
 
             permuted_ACTUAL = permutor.PermuteToList()
@@ -122,6 +131,8 @@ Namespace PermutationLibraryTest
 
         <TestMethod>
         Sub TestMalformedPermutor()
+            ' These tests ensure malformed configurations are not permitted by the Validate() function.
+
             Dim permutor As Permutor(Of Char)
 
             permutor = New Permutor(Of Char)(2, {}, True)
@@ -146,22 +157,71 @@ Namespace PermutationLibraryTest
 
             permutor = New Permutor(Of Char)(200, charList.Take(254).ToArray, True)
             Assert.ThrowsException(Of Exception)(Sub() permutor.Validate(True))
-
-
         End Sub
 
+        <TestMethod>
+        Sub TestWellFormedObjectPermutor_ToStream()
+
+            ' This test permutes complex objects through a stream, ensuring the result is correct.
+            ' Streaming in unit tests appear to be buggy so this is skipped once validated.
+
+            Dim testObjects(5) As TestObject
+            For i As Integer = 0 To 5
+                testObjects(i) = New TestObject(CDec(i))
+            Next
+
+            Dim permutor As New Permutor(Of TestObject)(2, testObjects, True)
+            Dim permuted_ACTUAL As New List(Of TestObject())
+            Dim permuted_EXPECTED As List(Of TestObject()) = GetExpectedTestObjectList(permutor.GetAllowDuplicates, testObjects)
+
+            Assert.IsNull(permutor.GetPermutationFromStream())
+
+            'permutor.InitStreamPermutor()
+            'While permutor.IsStreamActive()
+            '    permuted_ACTUAL.Add(permutor.GetPermutationFromStream)
+            'End While
+
+            'Assert.IsFalse(permutor.IsStreamActive)
+            'Assert.AreEqual(permuted_ACTUAL.Count, permuted_EXPECTED.Count)
+            'Assert.AreEqual(permuted_ACTUAL.Count, CInt(permutor.GetNoOfPermutations))
+            'MatchTestObjectResults(permuted_ACTUAL, permuted_EXPECTED)
+
+            '' Repeat to test that a PermutorStreamHandler() can be reused in the permutor safely.
+
+            'Assert.IsNull(permutor.GetPermutationFromStream())
+            'permutor.InitStreamPermutor()
+            'While permutor.IsStreamActive()
+            '    permuted_ACTUAL.Add(permutor.GetPermutationFromStream)
+            'End While
+
+            'Assert.IsFalse(permutor.IsStreamActive)
+            'Assert.AreEqual(permuted_ACTUAL.Count, permuted_EXPECTED.Count)
+            'Assert.AreEqual(permuted_ACTUAL.Count, CInt(permutor.GetNoOfPermutations))
+            'MatchTestObjectResults(permuted_ACTUAL, permuted_EXPECTED)
+        End Sub
+
+        ' These are not tests but methods that assist test execution.
+        ' //////
 
         Private Sub MatchStringResults(permuted_ACTUAL As List(Of Char()), permuted_EXPECTED As List(Of Char()))
+            ' Asserts that the expected and actual results for Char List Permutations are the same.
+
             For Each elem_EXPECTED As Char() In permuted_EXPECTED
                 Dim foundMatch As Boolean = False
                 For Each elem_ACTUAL As Char() In permuted_ACTUAL
-                    If elem_EXPECTED = elem_ACTUAL Then foundMatch = True
+                    If elem_EXPECTED = elem_ACTUAL Then
+                        foundMatch = True
+                        'permuted_ACTUAL.Remove(elem_ACTUAL)
+                    End If
+
                 Next
                 Assert.IsTrue(foundMatch)
             Next
         End Sub
 
         Private Sub MatchIntegerResults(permuted_ACTUAL As List(Of Integer()), permuted_EXPECTED As List(Of Integer()))
+            ' Asserts that the expected and actual results for Integer List Permutations are the same.
+
             For Each elem_EXPECTED As Integer() In permuted_EXPECTED
                 Dim foundMatch As Boolean = False
                 For Each elem_ACTUAL As Integer() In permuted_ACTUAL
@@ -179,6 +239,7 @@ Namespace PermutationLibraryTest
         End Sub
 
         Private Sub MatchTestObjectResults(permuted_ACTUAL As List(Of TestObject()), permuted_EXPECTED As List(Of TestObject()))
+            ' Asserts that the expected and actual results for TestObject List Permutations are the same.
 
             For Each elem_EXPECTED As TestObject() In permuted_EXPECTED
                 Dim foundMatch As Boolean = False
@@ -197,8 +258,9 @@ Namespace PermutationLibraryTest
         End Sub
 
         Private Function GetExpectedIntegerList(ByVal allowDuplicates As Boolean) As List(Of Integer())
-            Dim permuted_EXPECTED As New List(Of Integer())
+            ' Creates the expected Integer List permutation result for ease of use.
 
+            Dim permuted_EXPECTED As New List(Of Integer())
             For i As Integer = 0 To 5
                 For j As Integer = 0 To 5
                     If i <> j Then
@@ -212,8 +274,9 @@ Namespace PermutationLibraryTest
         End Function
 
         Private Function GetExpectedTestObjectList(ByVal allowDuplicates As Boolean, ByVal possibleValues As TestObject()) As List(Of TestObject())
-            Dim permuted_EXPECTED As New List(Of TestObject())
+            ' Creates the expected TestObject List permutation result for ease of use.
 
+            Dim permuted_EXPECTED As New List(Of TestObject())
             For i As Integer = 0 To possibleValues.Length - 1
                 For j As Integer = 0 To possibleValues.Length - 1
                     If i <> j Then
@@ -227,7 +290,8 @@ Namespace PermutationLibraryTest
         End Function
 
         Private Function Factorial(x As Integer) As Integer
-            If x = 1 Then Return 1
+            ' Returns x! for values of x s.t. Factorial(x) < 2^32, via recursion.
+            If x <= 1 Then Return 1
             Return x * Factorial(x - 1)
         End Function
     End Class

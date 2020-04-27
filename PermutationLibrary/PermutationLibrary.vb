@@ -12,7 +12,7 @@ Namespace PermutationLibrary
         Private possibleValues() As T
         Private possibleValueIndices As List(Of Integer)
         Private allowDuplicates As Boolean
-        Private streamHandler As StreamHandler(Of T)
+        Private streamHandler As PermutorStreamHandler
 
         '/////////////////////////
         'These methods relate to initialisation and configuration of permutor attributes.
@@ -186,7 +186,7 @@ Namespace PermutationLibrary
 
         'Converts the [permutee] to an array of Bytes to allow transmission over the defined stream.
         'This is done by converting the element to its corresponding index value in [possibleValues].
-        Public Function PermuteeToBytes(permutee() As Integer) As Byte()
+        Private Shared Function PermuteeToBytes(permutee() As Integer) As Byte()
             Dim permuteeCorrespondingIndices As New List(Of Byte)
             If permutee Is Nothing Then Throw New Exception
             For Each x As Integer In permutee
@@ -197,7 +197,7 @@ Namespace PermutationLibrary
 
         'The inverse operation to permuteeToBytes.
         'Use this when reading data out of the stream.
-        Public Function BytesToPermutee(bs() As Byte) As T()
+        Private Function BytesToPermutee(bs() As Byte) As T()
             Dim permuteeCorrespondingIndices As New List(Of T)
             If bs Is Nothing Then Throw New Exception
             For Each b As Byte In bs
@@ -266,7 +266,7 @@ Namespace PermutationLibrary
 
         'Sets up the stream; call this first
         Public Sub InitStreamPermutor()
-            streamHandler = New StreamHandler(Of T)(Me)
+            streamHandler = New PermutorStreamHandler(Me)
         End Sub
 
         'Returns true if the stream is still active; use this to iterate through permutations
@@ -291,7 +291,7 @@ Namespace PermutationLibrary
         'Generates every permutation and streams it through [stream].
         'The permutor is set up by the [streamHandler] created by InitStreamPermutor().
         'You should NOT call this function.
-        Public Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
+        Private Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
                                ByRef permutationAvle As Threading.Semaphore,
                                ByRef permutationPost As Threading.Semaphore,
                                ByRef permutationLock As Threading.Semaphore)
@@ -344,7 +344,8 @@ Namespace PermutationLibrary
         Protected Overridable Sub Dispose(disposing As Boolean)
             If disposed Then Return
             If disposing Then
-                streamHandler.Dispose()
+                If streamHandler IsNot Nothing Then streamHandler.Dispose()
+
             End If
 
             disposed = True
@@ -354,70 +355,71 @@ Namespace PermutationLibrary
             Dispose(True)
             GC.SuppressFinalize(Me)
         End Sub
+
+        '/////////////////////////
+        'This class provides a compact set of methods and attributes to make safely accessing the stream clean and simple.
+        '/////////////////////////
+        Private Class PermutorStreamHandler
+            Implements IDisposable
+            Private disposed As Boolean = False
+
+            Private stream As System.IO.MemoryStream = New System.IO.MemoryStream()
+            Private permutationAvle, permutationPost, permutationLock As Threading.Semaphore
+            Private ReadOnly permutor As Permutor(Of T)
+
+            'Constructor that configures semaphores for safe data transfer.
+            'Also initiates the new thread that computes permutations
+            Public Sub New(permutor As Permutor(Of T))
+                permutationAvle = New Threading.Semaphore(1, 1)
+                permutationPost = New Threading.Semaphore(0, 1)
+                permutationLock = New Threading.Semaphore(1, 1)
+                Dim permutationThread As New Threading.Thread(New Threading.ThreadStart(Sub() permutor.StreamPermutor(stream, permutationAvle, permutationPost, permutationLock)))
+
+                Me.permutor = permutor
+                permutationThread.Start()
+
+            End Sub
+
+            'Returns true is the stream is active
+            Public Function StreamActive() As Boolean
+                If stream.CanRead Then Return True
+                Return False
+            End Function
+
+            'Opens the lock, gets data from the stream, and closes it again for the permutor to post the next permutation.
+            'BUG: The returned bytes are of the wrong length and shortening it returns erroneous data.
+            '   A fix has been applied but its efficacy is not guaranteed!
+            Public Function GetPermutation() As T()
+                Dim permutationBytes(permutor.GetSizeOfPermutation) As Byte
+
+                permutationPost.WaitOne()
+                permutationLock.WaitOne()
+                stream.Position = 0
+                stream.Read(permutationBytes, 0, permutor.GetSizeOfPermutation)
+                permutationAvle.Release()
+                permutationLock.Release()
+
+                Return permutor.BytesToPermutee(permutationBytes.Take(permutationBytes.Length - 1).ToArray)
+            End Function
+
+            Protected Overridable Sub Dispose(disposing As Boolean)
+                If disposed Then Return
+
+                If disposing Then
+                    permutationAvle.Dispose()
+                    permutationPost.Dispose()
+                    permutationLock.Dispose()
+                    stream.Dispose()
+                End If
+
+                disposed = True
+            End Sub
+
+            Public Sub Dispose() Implements IDisposable.Dispose
+                Dispose(True)
+                GC.SuppressFinalize(Me)
+            End Sub
+        End Class
     End Class
 
-    '/////////////////////////
-    'This class provides a compact set of methods and attributes to make safely accessing the stream clean and simple.
-    '/////////////////////////
-    Public Class StreamHandler(Of T)
-        Implements IDisposable
-        Private disposed As Boolean = False
-
-        Private stream As System.IO.MemoryStream = New System.IO.MemoryStream()
-        Private permutationAvle, permutationPost, permutationLock As Threading.Semaphore
-        Private ReadOnly permutor As Permutor(Of T)
-
-        'Constructor that configures semaphores for safe data transfer.
-        'Also initiates the new thread that computes permutations
-        Public Sub New(permutor As Permutor(Of T))
-            permutationAvle = New Threading.Semaphore(1, 1)
-            permutationPost = New Threading.Semaphore(0, 1)
-            permutationLock = New Threading.Semaphore(1, 1)
-            Dim permutationThread As New Threading.Thread(New Threading.ThreadStart(Sub() permutor.StreamPermutor(stream, permutationAvle, permutationPost, permutationLock)))
-
-            Me.permutor = permutor
-            permutationThread.Start()
-
-        End Sub
-
-        'Returns true is the stream is active
-        Public Function StreamActive() As Boolean
-            If stream.CanRead Then Return True
-            Return False
-        End Function
-
-        'Opens the lock, gets data from the stream, and closes it again for the permutor to post the next permutation.
-        'BUG: The returned bytes are of the wrong length and shortening it returns erroneous data.
-        '   A fix has been applied but its efficacy is not guaranteed!
-        Public Function GetPermutation() As T()
-            Dim permutationBytes(permutor.GetSizeOfPermutation) As Byte
-
-            permutationPost.WaitOne()
-            permutationLock.WaitOne()
-            stream.Position = 0
-            stream.Read(permutationBytes, 0, permutor.GetSizeOfPermutation)
-            permutationAvle.Release()
-            permutationLock.Release()
-
-            Return permutor.BytesToPermutee(permutationBytes.Take(permutationBytes.Length - 1).ToArray)
-        End Function
-
-        Protected Overridable Sub Dispose(disposing As Boolean)
-            If disposed Then Return
-
-            If disposing Then
-                permutationAvle.Dispose()
-                permutationPost.Dispose()
-                permutationLock.Dispose()
-                stream.Dispose()
-            End If
-
-            disposed = True
-        End Sub
-
-        Public Sub Dispose() Implements IDisposable.Dispose
-            Dispose(True)
-            GC.SuppressFinalize(Me)
-        End Sub
-    End Class
 End Namespace

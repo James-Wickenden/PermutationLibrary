@@ -5,3 +5,6 @@ dotnet_diagnostic.CA1303.severity = none
 
 # CA1305: Specify IFormatProvider
 dotnet_diagnostic.CA1305.severity = none
+
+# CA1822: Member PermuteeToBytes does not access instance data and can be marked as static (Shared in VisualBasic)
+dotnet_diagnostic.CA1822.severity = suggestion
