@@ -3,6 +3,13 @@
 Public Module TestPermutor
     Private permutor As PermutationLibrary.Permutor(Of Char)
 
+    Private Class TestObject
+        Public val As Decimal
+        Public Sub New(val)
+            Me.val = val
+        End Sub
+    End Class
+
     Private Sub printCharArray(A As Char())
         Console.Write(A(0))
         For i As Integer = 1 To A.Length - 1
@@ -36,10 +43,7 @@ Public Module TestPermutor
         PrintVarArray("LIST", True)
         Dim perms As List(Of Char()) = permutor.permuteToList()
         For Each elem As Char() In perms
-            For Each letter As Char In elem
-                Console.Write(letter)
-            Next
-            Console.WriteLine()
+            Console.WriteLine(elem)
         Next
         Console.WriteLine()
         Console.WriteLine("/////////////////////////")
@@ -63,13 +67,11 @@ Public Module TestPermutor
 
     Private Sub TestBasicToList()
         PrintVarArray("FASTLIST", True)
-        Dim perms As List(Of Char()) = permutor.basicPermuteToList()
+        Dim perms As List(Of Char()) = permutor.BasicPermuteToList()
         For Each elem As Char() In perms
-            For Each letter As Char In elem
-                Console.Write(letter)
-            Next
-            Console.WriteLine()
+            Console.WriteLine(elem)
         Next
+        Console.WriteLine(perms.Count)
         Console.WriteLine()
         Console.WriteLine("/////////////////////////")
         Console.WriteLine()
@@ -106,6 +108,26 @@ Public Module TestPermutor
         INPUT_VARARRAY = alphabet.ToArray
     End Sub
 
+    Private Sub CustomTest()
+
+        'Dim testObjects(5) As TestObject
+        'For i As Integer = 0 To 5
+        '    testObjects(i) = New TestObject(CDec(i))
+        'Next
+
+        'Dim permutor2 As New Permutor(Of TestObject)(2, testObjects, True)
+        'Dim permuted_ACTUAL As List(Of TestObject()) = permutor2.PermuteToList()
+
+        'For Each elem As TestObject() In permuted_ACTUAL
+        '    For i As Integer = 0 To elem.Length - 1
+        '        Console.Write(elem(i).val)
+
+        '    Next
+        '    Console.WriteLine()
+        'Next
+
+    End Sub
+
     Public Sub Main()
         Dim INPUT_VARARRAY() As Char = {"a", "b", "c", "d", "e"}
         Dim PERMUTATION_SIZE As Integer = 3
@@ -115,11 +137,12 @@ Public Module TestPermutor
         permutor = New Permutor(Of Char)(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES)
         permutor.validate(True)
 
-        TestNumberPermsCounter()
-        TestToStream()
-        TestToList()
-        TestBasicToList()
-        TestRandomPermutation()
+        CustomTest()
+        'TestNumberPermsCounter()
+        'TestToStream()
+        'TestToList()
+        'TestBasicToList()
+        'TestRandomPermutation()
 
         Console.WriteLine("FINISHED")
         Console.ReadLine()

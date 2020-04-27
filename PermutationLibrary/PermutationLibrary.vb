@@ -289,7 +289,7 @@ Namespace PermutationLibrary
         End Function
 
         'Generates every permutation and streams it through [stream].
-        'The permutor is set up by the [streamHandler] created by initStreamPermutor().
+        'The permutor is set up by the [streamHandler] created by InitStreamPermutor().
         'You should NOT call this function.
         Public Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
                                ByRef permutationAvle As Threading.Semaphore,
@@ -314,7 +314,7 @@ Namespace PermutationLibrary
         End Sub
 
         'Generates every permutation and returns it using a list.
-        'This may fail if the number of permutations is too high and VB cannot handle the list; in this case, use permuteToStream().
+        'This may fail if the number of permutations is too high and VB cannot handle the list; in this case, use PermuteToStream().
         '   (This occurs when the list reaches a 2GB object size or contains 2^28 references.)
         Public Function PermuteToList() As List(Of T())
             Validate(True)
@@ -332,7 +332,7 @@ Namespace PermutationLibrary
             Return res
         End Function
 
-        'Faster but specific method of permuting an array of length [possibleValues.Count] without repetition. Works using recursion in basicPermutation().
+        'Faster but specific method of permuting an array of length [possibleValues.Count] without repetition. Works using recursion in BasicPermutation().
         'Basic permuting through a stream is not implemented because I'm lazy.
         Public Function BasicPermuteToList() As List(Of T())
             Validate(True)

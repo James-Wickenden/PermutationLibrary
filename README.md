@@ -23,6 +23,7 @@ A class testing the library and demonstrating some of its functionality can be s
 - Add parameter guidelines/ descriptions
 - Config library according to [https://docs.microsoft.com/en-us/dotnet/core/tutorials/library-with-visual-studio?tabs=vb](https://docs.microsoft.com/en-us/dotnet/core/tutorials/library-with-visual-studio?tabs=vb)
 - Refactor TestPermutor into PermutorTest
+- BUGFIX permutor.Dispose() crashing?
 - Configure error messages according to an error message resource table.
 - Clean up github filestructure
 
