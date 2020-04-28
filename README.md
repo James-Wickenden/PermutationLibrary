@@ -9,6 +9,7 @@ A Visual Basic Permutation library to allow complex and custom permuting of gene
 PermutationLibrary Version 1.15 (Updated 28/04/2020)
 
 The online repository is available at <https://github.com/James-Wickenden/VB-Permutor>
+
 The nuget package is available at <https://www.nuget.org/packages/PermutationLibrary>
 
 Provides framework to allow generic permuting of arrays, either with or without repetition.
