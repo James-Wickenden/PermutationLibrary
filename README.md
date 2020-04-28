@@ -25,6 +25,9 @@ A class testing the library and demonstrating some of its functionality can be s
 - Add parameter guidelines/ descriptions
 - Configure error messages according to an error message resource table.
 - Clean up github filestructure
+- Implement a faster algorithm for generating the next distinct permutation when allowDuplicates = false
+- <https://www.geeksforgeeks.org/iterative-program-to-generate-distinct-permutations-of-a-string>
+- Superpermutation function?
 
 ## Functionality
 

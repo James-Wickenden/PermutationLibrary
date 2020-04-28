@@ -3,10 +3,11 @@ Imports PermutationLibrary
 
 Module Program
     Sub Main()
-        Dim PERMUTATION_SIZE As Integer = 12
+        Dim PERMUTATION_SIZE As Integer = 8
         Dim INPUT_VARARRAY() As Char = {"a", "b", "c", "d", "e"}
-        Dim ALLOW_DUPLICATES As Boolean = True
+        Dim ALLOW_DUPLICATES As Boolean = False
         SetInputAsAlphabet(INPUT_VARARRAY)
+        'INPUT_VARARRAY = {"a", "b", "c"}
 
         Dim permutor As New Permutor(Of Char)(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES)
 

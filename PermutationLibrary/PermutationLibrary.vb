@@ -161,11 +161,28 @@ Namespace PermutationLibrary
             Dim toNextColumn As Boolean = False
 
             GetNextPossibleColummValue(permutee, toNextColumn, 0)
+
             While toNextColumn = True And traversalIndex < sizeOfPermutation - 1
-                toNextColumn = False
-                traversalIndex += 1
-                GetNextPossibleColummValue(permutee, toNextColumn, traversalIndex)
+                    toNextColumn = False
+                    traversalIndex += 1
+                    GetNextPossibleColummValue(permutee, toNextColumn, traversalIndex)
             End While
+
+            If Not allowDuplicates Then
+
+                While permutee.Distinct.Count <> permutee.Count and Not PermuteeContainsOnlyFinalElement(permutee)
+                    traversalIndex = 0
+                    toNextColumn = False
+
+                    GetNextPossibleColummValue(permutee, toNextColumn, 0)
+                    While toNextColumn = True And traversalIndex < sizeOfPermutation - 1
+                        toNextColumn = False
+                        traversalIndex += 1
+                        GetNextPossibleColummValue(permutee, toNextColumn, traversalIndex)
+                    End While
+                End While
+            End If
+
         End Sub
 
         'Streams the current permutation to the host thread securely using Semaphores, avoiding deadlock.
