@@ -3,7 +3,7 @@ Imports System.Runtime.CompilerServices
 
 Namespace PermutationLibrary
     Public Class Permutor(Of T)
-        Implements IDisposable
+        Implements IDisposable, IPermutorInterface(Of T)
 
         'https://github.com/James-Wickenden/VB-Permutor
         Private disposed As Boolean = False
@@ -24,14 +24,14 @@ Namespace PermutationLibrary
             Configure(sizeOfPermutation, possibleValues, allowDuplicates)
         End Sub
 
-        Public Sub Configure(ByVal sizeOfPermutation As Integer, ByVal possibleValues() As T, ByVal allowDuplicates As Boolean)
+        Public Sub Configure(ByVal sizeOfPermutation As Integer, ByVal possibleValues() As T, ByVal allowDuplicates As Boolean) Implements IPermutorInterface(Of T).Configure
             Me.sizeOfPermutation = sizeOfPermutation
             Me.possibleValues = possibleValues
             Me.allowDuplicates = allowDuplicates
             ConfigIndicesList()
         End Sub
 
-        Public Sub Validate(Optional fromList As Boolean = False)
+        Public Sub Validate(Optional fromList As Boolean = False) Implements IPermutorInterface(Of T).Validate
             Dim exceptionStr As String = ""
             If IsNothing(allowDuplicates) Then exceptionStr &=
                 "ERROR: [allowDuplicates] attribute must not be null. "
@@ -88,28 +88,28 @@ Namespace PermutationLibrary
         End Function
 
         'Getters and setters for the permutor attributes. Not used in the code but added here for the user.
-        Public Sub SetSizeOfPermutation(newPermutationSize As Integer)
+        Public Sub SetSizeOfPermutation(newPermutationSize As Integer) Implements IPermutorInterface(Of T).SetSizeOfPermutation
             sizeOfPermutation = newPermutationSize
         End Sub
 
-        Public Sub SetPossibleValues(newPossibleValues As T())
+        Public Sub SetPossibleValues(newPossibleValues As T()) Implements IPermutorInterface(Of T).SetPossibleValues
             possibleValues = newPossibleValues
             ConfigIndicesList()
         End Sub
 
-        Public Sub SetAllowDuplicates(newAllowDuplicates As Boolean)
+        Public Sub SetAllowDuplicates(newAllowDuplicates As Boolean) Implements IPermutorInterface(Of T).SetAllowDuplicates
             allowDuplicates = newAllowDuplicates
         End Sub
 
-        Public Function GetSizeOfPermutation() As Integer
+        Public Function GetSizeOfPermutation() As Integer Implements IPermutorInterface(Of T).GetSizeOfPermutation
             Return sizeOfPermutation
         End Function
 
-        Public Function GetPossibleValues() As T()
+        Public Function GetPossibleValues() As T() Implements IPermutorInterface(Of T).GetPossibleValues
             Return possibleValues.ToArray
         End Function
 
-        Public Function GetAllowDuplicates() As Boolean
+        Public Function GetAllowDuplicates() As Boolean Implements IPermutorInterface(Of T).GetAllowDuplicates
             Return allowDuplicates
         End Function
 
@@ -266,7 +266,7 @@ Namespace PermutationLibrary
         'Returns the number of permutations that the permutor will generate if called.
         'Calucates differently depending on whether duplicate elements are allowed.
         'A return value of -1 indicates more than 2^64 results are returned by permuting.
-        Public Function GetNoOfPermutations() As Long
+        Public Function GetNoOfPermutations() As Long Implements IPermutorInterface(Of T).GetNoOfPermutations
             Try
                 If Not allowDuplicates Then
                     Dim numerator As System.Numerics.BigInteger = Factorial(possibleValues.Length)
@@ -284,95 +284,95 @@ Namespace PermutationLibrary
                 Return -1
             End Try
             Return -1
-            End Function
+        End Function
 
-            'Sets up the stream; call this first
-            Public Sub InitStreamPermutor()
-                streamHandler = New PermutorStreamHandler(Me)
-            End Sub
+        'Sets up the stream; call this first
+        Public Sub InitStreamPermutor() Implements IPermutorInterface(Of T).InitStreamPermutor
+            streamHandler = New PermutorStreamHandler(Me)
+        End Sub
 
-            'Returns true if the stream is still active; use this to iterate through permutations
-            Public Function IsStreamActive() As Boolean
-                If streamHandler Is Nothing Then Return False
-                Return streamHandler.StreamActive
-            End Function
+        'Returns true if the stream is still active; use this to iterate through permutations
+        Public Function IsStreamActive() As Boolean Implements IPermutorInterface(Of T).IsStreamActive
+            If streamHandler Is Nothing Then Return False
+            Return streamHandler.StreamActive
+        End Function
 
-            'Returns an array of the permutation and sets up the stream to send the next permutation
-            Public Function GetPermutationFromStream() As T()
-                If streamHandler Is Nothing Then Return Nothing
-                If Not streamHandler.StreamActive Then Return Nothing
-                Return streamHandler.GetPermutation
-            End Function
+        'Returns an array of the permutation and sets up the stream to send the next permutation
+        Public Function GetPermutationFromStream() As T() Implements IPermutorInterface(Of T).GetPermutationFromStream
+            If streamHandler Is Nothing Then Return Nothing
+            If Not streamHandler.StreamActive Then Return Nothing
+            Return streamHandler.GetPermutation
+        End Function
 
-            'Returns an array of the random permutation generated using the given seed. The seed defaults to using the system tick counter if not specified.
-            Public Function GetRandomPermutation(ByRef generator As Random) As T()
-                If generator Is Nothing Then Throw New Exception
-                Return RandomPermutation(generator).ToArray
-            End Function
+        'Returns an array of the random permutation generated using the given seed. The seed defaults to using the system tick counter if not specified.
+        Public Function GetRandomPermutation(ByRef generator As Random) As T() Implements IPermutorInterface(Of T).GetRandomPermutation
+            If generator Is Nothing Then Throw New Exception
+            Return RandomPermutation(generator).ToArray
+        End Function
 
-            'Generates every permutation and streams it through [stream].
-            'The permutor is set up by the [streamHandler] created by InitStreamPermutor().
-            Private Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
+        'Generates every permutation and streams it through [stream].
+        'The permutor is set up by the [streamHandler] created by InitStreamPermutor().
+        Private Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
                                ByRef permutationAvle As Threading.Semaphore,
                                ByRef permutationPost As Threading.Semaphore,
                                ByRef permutationLock As Threading.Semaphore)
 
-                Validate(False)
-                If stream Is Nothing Then Throw New Exception
-                If permutationAvle Is Nothing Or permutationPost Is Nothing Or permutationLock Is Nothing Then Throw New Exception
+            Validate(False)
+            If stream Is Nothing Then Throw New Exception
+            If permutationAvle Is Nothing Or permutationPost Is Nothing Or permutationLock Is Nothing Then Throw New Exception
 
-                Dim permutee As List(Of Integer) = InitPermutingArray()
-                stream.Capacity = sizeOfPermutation
-                Do
-                    OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
-                    FindNextPermutation(permutee)
-                Loop Until PermuteeContainsOnlyFinalElement(permutee)
+            Dim permutee As List(Of Integer) = InitPermutingArray()
+            stream.Capacity = sizeOfPermutation
+            Do
                 OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
+                FindNextPermutation(permutee)
+            Loop Until PermuteeContainsOnlyFinalElement(permutee)
+            OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
 
-                permutationAvle.WaitOne()
-                stream.Close()
-                streamHandler = Nothing
-            End Sub
+            permutationAvle.WaitOne()
+            stream.Close()
+            streamHandler = Nothing
+        End Sub
 
-            'Generates every permutation and returns it using a list.
-            'This may fail if the number of permutations is too high and VB cannot handle the list; in this case, use PermuteToStream().
-            '   (This occurs when the list reaches a 2GB object size or contains 2^28 references.)
-            Public Function PermuteToList() As List(Of T())
-                Validate(True)
+        'Generates every permutation and returns it using a list.
+        'This may fail if the number of permutations is too high and VB cannot handle the list; in this case, use PermuteToStream().
+        '   (This occurs when the list reaches a 2GB object size or contains 2^28 references.)
+        Public Function PermuteToList() As List(Of T()) Implements IPermutorInterface(Of T).PermuteToList
+            Validate(True)
 
-                Dim permutee As List(Of Integer) = InitPermutingArray()
-                Dim res As New List(Of T())
-                Do
-                    If Not allowDuplicates And permutee.Distinct.Count = permutee.Count Then AddResultToList(res, permutee)
-                    If allowDuplicates Then AddResultToList(res, permutee)
-                    FindNextPermutation(permutee)
-                Loop Until PermuteeContainsOnlyFinalElement(permutee)
+            Dim permutee As List(Of Integer) = InitPermutingArray()
+            Dim res As New List(Of T())
+            Do
                 If Not allowDuplicates And permutee.Distinct.Count = permutee.Count Then AddResultToList(res, permutee)
                 If allowDuplicates Then AddResultToList(res, permutee)
+                FindNextPermutation(permutee)
+            Loop Until PermuteeContainsOnlyFinalElement(permutee)
+            If Not allowDuplicates And permutee.Distinct.Count = permutee.Count Then AddResultToList(res, permutee)
+            If allowDuplicates Then AddResultToList(res, permutee)
 
-                Return res
-            End Function
+            Return res
+        End Function
 
-            'Faster but specific method of permuting an array of length [possibleValues.Count] without repetition. Works using recursion in BasicPermutation().
-            'Basic permuting through a stream is not implemented because I'm lazy.
-            Public Function BasicPermuteToList() As List(Of T())
-                Validate(True)
-                Dim res As New List(Of T())
-                BasicPermutation(res, possibleValueIndices.ToArray, possibleValueIndices.Count)
-                Return res
-            End Function
+        'Faster but specific method of permuting an array of length [possibleValues.Count] without repetition. Works using recursion in BasicPermutation().
+        'Basic permuting through a stream is not implemented because I'm lazy.
+        Public Function BasicPermuteToList() As List(Of T()) Implements IPermutorInterface(Of T).BasicPermuteToList
+            Validate(True)
+            Dim res As New List(Of T())
+            BasicPermutation(res, possibleValueIndices.ToArray, possibleValueIndices.Count)
+            Return res
+        End Function
 
-            Protected Overridable Sub Dispose(disposing As Boolean)
-                If disposed Then Return
-                If disposing Then
-                    If streamHandler IsNot Nothing Then streamHandler.Dispose()
+        Protected Overridable Sub Dispose(disposing As Boolean)
+            If disposed Then Return
+            If disposing Then
+                If streamHandler IsNot Nothing Then streamHandler.Dispose()
 
-                End If
+            End If
 
-                disposed = True
-            End Sub
+            disposed = True
+        End Sub
 
-        Public Sub Dispose() Implements IDisposable.Dispose
+        Public Sub Dispose() Implements IDisposable.Dispose, IPermutorInterface(Of T).Dispose
             Dispose(True)
             GC.SuppressFinalize(Me)
         End Sub
