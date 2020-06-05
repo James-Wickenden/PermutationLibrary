@@ -6,7 +6,7 @@
 
 A Visual Basic Permutation library to allow complex and custom permuting of generic objects.
 
-PermutationLibrary Version 1.16.1 (Updated 05/06/2020)
+PermutationLibrary Version 1.16 (Updated 05/06/2020)
 
 The online repository is available at <https://github.com/James-Wickenden/VB-Permutor>
 
@@ -24,11 +24,9 @@ A class testing the library and demonstrating some of its functionality can be s
 
 - Add parameter guidelines/ descriptions
 - Configure error messages according to an error message resource table.
-- Clean up github filestructure
 - Add a NuGet Package Icon
-- Implement a faster algorithm for generating the next distinct permutation when allowDuplicates = false
-- <https://www.geeksforgeeks.org/iterative-program-to-generate-distinct-permutations-of-a-string>
 - Superpermutation function?
+- Port to C# .NET
 
 ## Functionality
 

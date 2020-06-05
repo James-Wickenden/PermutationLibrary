@@ -7,18 +7,17 @@ Module Program
         Dim INPUT_VARARRAY() As Char = {"a", "b", "c", "d", "e"}
         Dim ALLOW_DUPLICATES As Boolean = False
         'SetInputAsAlphabet(INPUT_VARARRAY)
-        'INPUT_VARARRAY = {"a", "b", "c"}
 
         Dim permutor As New Permutor(Of Char)(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES)
 
-        ' List Permuting
+        ' LIST PERMUTING
         'permutor.GetNoOfPermutations()
         'Dim permutedList As List(Of Char()) = permutor.PermuteToList
         'For Each permutation As String In permutedList
         '    Console.WriteLine(permutation)
         'Next
 
-        ' Stream Permuting
+        ' STREAM PERMUTING
         'Dim permutedStreamReceiver As Char()
         'permutor.InitStreamPermutor()
         'While permutor.IsStreamActive

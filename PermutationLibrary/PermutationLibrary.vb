@@ -170,7 +170,7 @@ Namespace PermutationLibrary
 
             If Not allowDuplicates Then
 
-                While permutee.Distinct.Count <> permutee.Count and Not PermuteeContainsOnlyFinalElement(permutee)
+                While permutee.Distinct.Count <> permutee.Count And Not PermuteeContainsOnlyFinalElement(permutee)
                     traversalIndex = 0
                     toNextColumn = False
 
@@ -182,7 +182,29 @@ Namespace PermutationLibrary
                     End While
                 End While
             End If
+        End Sub
 
+        'Recursive procedure to generate distinct permutations.
+        'Traverses down the permutation, setting each element as a valid choice then recursing on the next element.
+        Private Sub FindDistinctPermutations(ByRef permutee As List(Of Integer), ByRef banlist As List(Of Integer), ByVal curindex As Integer,
+                                             ByRef stream As System.IO.MemoryStream,
+                                             ByRef permutationAvle As Threading.Semaphore,
+                                             ByRef permutationPost As Threading.Semaphore,
+                                             ByRef permutationLock As Threading.Semaphore)
+            For i As Integer = 0 To possibleValueIndices.Count - 1
+                If (banlist.Contains(i)) Then Continue For
+                If (curindex = permutee.Count) Then
+                    OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
+                    Return
+                End If
+
+                permutee(curindex) = possibleValueIndices(i)
+
+                banlist.Add(i)
+                FindDistinctPermutations(permutee, banlist, curindex + 1,
+                                stream, permutationAvle, permutationPost, permutationLock)
+                banlist.Remove(i)
+            Next
         End Sub
 
         'Streams the current permutation to the host thread securely using Semaphores, avoiding deadlock.
@@ -311,7 +333,6 @@ Namespace PermutationLibrary
         'Kill the stream permutor and its thread prematurely
         Public Sub KillStreamPermutor() Implements IPermutorInterface(Of T).KillStreamPermutor
             If streamHandler IsNot Nothing Then streamHandler.Dispose()
-
         End Sub
 
         'Returns true if the stream is still active; use this to iterate through permutations
@@ -346,11 +367,17 @@ Namespace PermutationLibrary
 
             Dim permutee As List(Of Integer) = InitPermutingArray()
             stream.Capacity = sizeOfPermutation
-            Do
+
+            If allowDuplicates Then
+                Do
+                    OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
+                    FindNextPermutation(permutee)
+                Loop Until PermuteeContainsOnlyFinalElement(permutee)
                 OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
-                FindNextPermutation(permutee)
-            Loop Until PermuteeContainsOnlyFinalElement(permutee)
-            OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
+            Else
+                FindDistinctPermutations(permutee, New List(Of Integer), 0,
+                                         stream, permutationAvle, permutationPost, permutationLock)
+            End If
 
             permutationAvle.WaitOne()
             stream.Close()
