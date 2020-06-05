@@ -427,7 +427,7 @@ Namespace PermutationLibrary
             'Returns true is the stream is active
             Public Function StreamActive() As Boolean
                 If stream.CanRead Then Return True
-                'Me.Dispose()
+                Me.Dispose()
                 Return False
             End Function
 
@@ -454,7 +454,7 @@ Namespace PermutationLibrary
                     permutationAvle.Dispose()
                     permutationPost.Dispose()
                     permutationLock.Dispose()
-                    ' permutationThread.
+                    permutationThread = Nothing
                     stream.Dispose()
                 End If
 

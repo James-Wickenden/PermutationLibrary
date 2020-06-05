@@ -19,13 +19,6 @@ Module Program
         While permutor.IsStreamActive
             permutedStreamReceiver = permutor.GetPermutationFromStream
             Console.WriteLine(permutedStreamReceiver)
-            If permutedStreamReceiver = "cbd" Then permutor.KillStreamPermutor()
-        End While
-        Console.WriteLine("BREAK")
-        permutor.InitStreamPermutor()
-        While permutor.IsStreamActive
-            permutedStreamReceiver = permutor.GetPermutationFromStream
-            Console.WriteLine(permutedStreamReceiver)
         End While
 
         Console.ReadLine()
