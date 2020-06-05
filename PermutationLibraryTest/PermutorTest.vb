@@ -231,6 +231,26 @@ Namespace PermutationLibraryTest
         End Sub
 
         <TestMethod>
+        Sub TestKillStreamPermutor()
+            ' Ensures that the KillStreamPermutor() method is safe.
+
+            Dim permutor As New Permutor(Of String)(3, {"a", "b", "c", "d", "e"}, False)
+            permutor.KillStreamPermutor()
+            Assert.IsNotNull(permutor)
+
+            permutor.InitStreamPermutor()
+            Dim p_A() As String = {}
+            While permutor.IsStreamActive()
+                p_A = permutor.GetPermutationFromStream
+                If p_A(0) = "c" And p_A(1) = "a" And p_A(2) = "d" Then permutor.KillStreamPermutor()
+            End While
+            Assert.AreEqual(p_A(0), "c")
+            Assert.AreEqual(p_A(1), "a")
+            Assert.AreEqual(p_A(2), "d")
+        End Sub
+
+
+        <TestMethod>
         Sub TestDispose()
             ' Ensures that the Dispose() method is safe.
 

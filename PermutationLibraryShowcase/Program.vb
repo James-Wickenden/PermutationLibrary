@@ -11,15 +11,20 @@ Module Program
 
         Dim permutor As New Permutor(Of Char)(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES)
 
+        ' List Permuting
         'permutor.GetNoOfPermutations()
         'Dim permutedList As List(Of Char()) = permutor.PermuteToList
-        Dim permutedStreamReceiver As Char()
+        'For Each permutation As String In permutedList
+        '    Console.WriteLine(permutation)
+        'Next
 
-        permutor.InitStreamPermutor()
-        While permutor.IsStreamActive
-            permutedStreamReceiver = permutor.GetPermutationFromStream
-            Console.WriteLine(permutedStreamReceiver)
-        End While
+        ' Stream Permuting
+        'Dim permutedStreamReceiver As Char()
+        'permutor.InitStreamPermutor()
+        'While permutor.IsStreamActive
+        '    permutedStreamReceiver = permutor.GetPermutationFromStream
+        '    Console.WriteLine(permutedStreamReceiver)
+        'End While
 
         Console.ReadLine()
     End Sub
