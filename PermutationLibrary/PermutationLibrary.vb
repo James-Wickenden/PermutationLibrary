@@ -308,6 +308,12 @@ Namespace PermutationLibrary
             streamHandler = New PermutorStreamHandler(Me)
         End Sub
 
+        'Kill the stream permutor and its thread prematurely
+        Public Sub KillStreamPermutor() Implements IPermutorInterface(Of T).KillStreamPermutor
+            If streamHandler IsNot Nothing Then streamHandler.Dispose()
+
+        End Sub
+
         'Returns true if the stream is still active; use this to iterate through permutations
         Public Function IsStreamActive() As Boolean Implements IPermutorInterface(Of T).IsStreamActive
             If streamHandler Is Nothing Then Return False
@@ -383,7 +389,6 @@ Namespace PermutationLibrary
             If disposed Then Return
             If disposing Then
                 If streamHandler IsNot Nothing Then streamHandler.Dispose()
-
             End If
 
             disposed = True
@@ -402,6 +407,7 @@ Namespace PermutationLibrary
             Private disposed As Boolean = False
 
             Private stream As System.IO.MemoryStream = New System.IO.MemoryStream()
+            Private permutationThread As Threading.Thread
             Private permutationAvle, permutationPost, permutationLock As Threading.Semaphore
             Private ReadOnly permutor As Permutor(Of T)
 
@@ -411,7 +417,7 @@ Namespace PermutationLibrary
                 permutationAvle = New Threading.Semaphore(1, 1)
                 permutationPost = New Threading.Semaphore(0, 1)
                 permutationLock = New Threading.Semaphore(1, 1)
-                Dim permutationThread As New Threading.Thread(New Threading.ThreadStart(Sub() permutor.StreamPermutor(stream, permutationAvle, permutationPost, permutationLock)))
+                permutationThread = New Threading.Thread(New Threading.ThreadStart(Sub() permutor.StreamPermutor(stream, permutationAvle, permutationPost, permutationLock)))
 
                 Me.permutor = permutor
                 permutationThread.Start()
@@ -421,6 +427,7 @@ Namespace PermutationLibrary
             'Returns true is the stream is active
             Public Function StreamActive() As Boolean
                 If stream.CanRead Then Return True
+                'Me.Dispose()
                 Return False
             End Function
 
@@ -447,6 +454,7 @@ Namespace PermutationLibrary
                     permutationAvle.Dispose()
                     permutationPost.Dispose()
                     permutationLock.Dispose()
+                    ' permutationThread.
                     stream.Dispose()
                 End If
 

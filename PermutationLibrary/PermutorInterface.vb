@@ -15,6 +15,7 @@
     Function GetNoOfPermutations() As Long
 
     Sub InitStreamPermutor()
+    Sub KillStreamPermutor()
     Function IsStreamActive() As Boolean
     Function GetPermutationFromStream() As T()
 
