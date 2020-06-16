@@ -24,6 +24,9 @@ Namespace PermutationLibrary
             Configure(sizeOfPermutation, possibleValues, allowDuplicates)
         End Sub
 
+        ''' <param name="sizeOfPermutation">The length of the returned permutations.</param>
+        ''' <param name="possibleValues">An array of the possible values the permutations can take from.</param>
+        ''' <param name="allowDuplicates">Whether returned permutations can use the same value multiple times.</param>
         Public Sub Configure(ByVal sizeOfPermutation As Integer, ByVal possibleValues() As T, ByVal allowDuplicates As Boolean) Implements IPermutorInterface(Of T).Configure
             Me.sizeOfPermutation = sizeOfPermutation
             Me.possibleValues = possibleValues
@@ -31,6 +34,8 @@ Namespace PermutationLibrary
             ConfigIndicesList()
         End Sub
 
+        ' Validates the current permutor configuration to ensure that it is valid, and returns a corresponding error message otherwise.
+        ''' <param name="fromList">An optional parameter that ensures the resulting permutations can be returned as a list.</param>
         Public Sub Validate(Optional fromList As Boolean = False) Implements IPermutorInterface(Of T).Validate
             Dim exceptionStr As String = ""
             If IsNothing(allowDuplicates) Then exceptionStr &=
@@ -88,15 +93,19 @@ Namespace PermutationLibrary
         End Function
 
         'Getters and setters for the permutor attributes. Not used in the code but added here for the user.
+
+        ''' <param name="newPermutationSize">The length of the returned permutations.</param>
         Public Sub SetSizeOfPermutation(newPermutationSize As Integer) Implements IPermutorInterface(Of T).SetSizeOfPermutation
             sizeOfPermutation = newPermutationSize
         End Sub
 
+        ''' <param name="newPossibleValues">An array of the possible values the permutations can take from.</param>
         Public Sub SetPossibleValues(newPossibleValues As T()) Implements IPermutorInterface(Of T).SetPossibleValues
             possibleValues = newPossibleValues
             ConfigIndicesList()
         End Sub
 
+        ''' <param name="newAllowDuplicates">Whether returned permutations can use the same value multiple times.</param>
         Public Sub SetAllowDuplicates(newAllowDuplicates As Boolean) Implements IPermutorInterface(Of T).SetAllowDuplicates
             allowDuplicates = newAllowDuplicates
         End Sub

@@ -27,17 +27,16 @@ Module PermutorShowcase
         '    Console.WriteLine(permutedStreamReceiver)
         'End While
 
-        ' RANDOM PERMUTING
-        Console.WriteLine("RANDOM PERMUTING")
-        Dim generator As New Random
-        Dim permuted As Char()
-        For i As Integer = 0 To 10
-
-            permuted = permutor.GetRandomPermutation(generator)
-            Console.WriteLine(permuted)
-        Next
-
-
+        '' RANDOM PERMUTING
+        'Console.WriteLine("RANDOM PERMUTING")
+        'SetInputAsAlphabet(INPUT_VARARRAY)
+        'permutor.Configure(40, INPUT_VARARRAY, True)
+        'Dim generator As New Random
+        'Dim permuted As Char()
+        'For i As Integer = 1 To 9
+        '    permuted = permutor.GetRandomPermutation(generator)
+        '    Console.WriteLine(i & ". " & permuted)
+        'Next
 
         Console.ReadLine()
     End Sub
