@@ -249,7 +249,6 @@ Namespace PermutationLibraryTest
             Assert.AreEqual(p_A(2), "d")
         End Sub
 
-
         <TestMethod>
         Sub TestDispose()
             ' Ensures that the Dispose() method is safe.

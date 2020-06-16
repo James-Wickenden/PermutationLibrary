@@ -349,6 +349,7 @@ Namespace PermutationLibrary
         End Function
 
         'Returns an array of the random permutation generated using the given seed. The seed defaults to using the system tick counter if not specified.
+        ''' <param name = "generator" >The Random object used to generate the permutation.</param>
         Public Function GetRandomPermutation(ByRef generator As Random) As T() Implements IPermutorInterface(Of T).GetRandomPermutation
             If generator Is Nothing Then Throw New Exception
             Return RandomPermutation(generator).ToArray
