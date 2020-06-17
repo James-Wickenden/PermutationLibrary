@@ -12,8 +12,15 @@ Module PermutorShowcase
 
         '' LIST PERMUTING
         'Console.WriteLine("LIST PERMUTING")
-        'permutor.GetNoOfPermutations()
         'Dim permutedList As List(Of Char()) = permutor.PermuteToList
+        'For Each permutation As String In permutedList
+        '    Console.WriteLine(permutation)
+        'Next
+        'Console.WriteLine("Generated " & permutor.GetNoOfPermutations & " permutations.")
+
+        '' BASIC LIST PERMUTING
+        'Console.WriteLine("BASIC LIST PERMUTING")
+        'Dim permutedList As List(Of Char()) = permutor.BasicPermuteToList
         'For Each permutation As String In permutedList
         '    Console.WriteLine(permutation)
         'Next
@@ -26,24 +33,25 @@ Module PermutorShowcase
         '    permutedStreamReceiver = permutor.GetPermutationFromStream
         '    Console.WriteLine(permutedStreamReceiver)
         'End While
+        'Console.WriteLine("Generated " & permutor.GetNoOfPermutations & " permutations.")
 
-        ' RANDOM PERMUTING
-        Console.WriteLine("RANDOM PERMUTING")
-        SetInputAsAlphabet(INPUT_VARARRAY)
-        permutor.Configure(40, INPUT_VARARRAY, True)
-        Dim generator As New Random
-        Dim permuted As Char()
-        For i As Integer = 1 To 9
-            permuted = permutor.GetRandomPermutation(generator)
-            Console.WriteLine(i & ". " & permuted)
-        Next
+        '' RANDOM PERMUTING
+        'Console.WriteLine("RANDOM PERMUTING")
+        'SetInputAsAlphabet(INPUT_VARARRAY)
+        'permutor.Configure(40, INPUT_VARARRAY, True)
+        'Dim generator As New Random
+        'Dim permuted As Char()
+        'For i As Integer = 1 To 9
+        '    permuted = permutor.GetRandomPermutation(generator)
+        '    Console.WriteLine(i & ". " & permuted)
+        'Next
 
         Console.ReadLine()
     End Sub
 
     Private Sub SetInputAsAlphabet(ByRef INPUT_VARARRAY As Char())
         Dim alphabet As New List(Of Char)
-        For i As Integer = 0 To 25
+        For i As Integer = 0 To 26
             alphabet.Add(Microsoft.VisualBasic.Chr(97 + i))
         Next
         INPUT_VARARRAY = alphabet.ToArray

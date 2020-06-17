@@ -142,7 +142,6 @@ Namespace PermutationLibrary
         'These methods provide basic mathematical and logical functionality.
         '/////////////////////////
 
-
         ''' <summary>Calculates the factorial of a BigInteger. I don't know why. Probably to stop overflows.</summary>
         ''' <returns>The value of y = x!</returns>
         Private Function Factorial(x As System.Numerics.BigInteger) As System.Numerics.BigInteger
@@ -420,7 +419,7 @@ Namespace PermutationLibrary
             Return streamHandler.GetPermutation
         End Function
 
-        ''' <summary>Returns an array of the random permutation generated using the given seed.</summary>
+        ''' <summary>Get an array of the random permutation generated using the given seed.</summary>
         ''' <param name = "generator" >The Random object used to generate the permutation.</param>
         Public Function GetRandomPermutation(ByRef generator As Random) As T() Implements IPermutorInterface(Of T).GetRandomPermutation
             If generator Is Nothing Then Throw New Exception
