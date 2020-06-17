@@ -6,7 +6,7 @@
 
 A Visual Basic Permutation library to allow complex and custom permuting of generic objects.
 
-PermutationLibrary Version 1.18.1 (Updated 17/06/2020)
+PermutationLibrary Version 1.18.2 (Updated 17/06/2020)
 
 The online repository is available at <https://github.com/James-Wickenden/VB-Permutor>
 
@@ -160,4 +160,11 @@ There are several parameters held by the Permutor which determine the output of 
     Validates the permutor given the current internal parameters, causing an exception if any errors are found that would prevent the permutor from working. This function is called before permuting anyway so it is not necessary to call before every permutation.
 
     The parameter `fromList As Boolean` should be set to true if you intend to call `PermuteToList()` to ensure that it can return the List safely without running out of memory.
-    
+
+- Dispose the permutor:
+
+     ```VB
+    permutor.Dispose()
+    ```
+
+    Disposes the permutor and its internal PermutorStreamHandler.

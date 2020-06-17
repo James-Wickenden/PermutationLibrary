@@ -44,6 +44,8 @@ Namespace PermutationLibrary
         ''' <summary>Validate the current permutor configuration to ensure that it is valid, and returns a corresponding error message otherwise.</summary>
         ''' <param name="fromList">An optional parameter that ensures the resulting permutations can be returned as a list.</param>
         Public Sub Validate(Optional fromList As Boolean = False) Implements IPermutorInterface(Of T).Validate
+            If disposed Then Exit Sub
+
             Dim exceptionStr As String = ""
             If IsNothing(allowDuplicates) Then exceptionStr &=
                 "ERROR: [allowDuplicates] attribute must not be null. "

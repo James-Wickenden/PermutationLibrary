@@ -46,6 +46,9 @@ Module PermutorShowcase
         '    Console.WriteLine(i & ". " & permuted)
         'Next
 
+        '' DISPOSAL
+        'permutor.Dispose()
+
         Console.ReadLine()
     End Sub
 
