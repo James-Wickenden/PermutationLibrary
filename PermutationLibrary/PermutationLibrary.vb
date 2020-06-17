@@ -2,6 +2,9 @@
 Imports System.Runtime.CompilerServices
 
 Namespace PermutationLibrary
+
+    ''' <summary>Handles the logic of generating permutations, and returning the result to the user.</summary>
+    ''' <typeparam name="T">Type of the objects handled by that instance of the Permutor.</typeparam>
     Public Class Permutor(Of T)
         Implements IDisposable, IPermutorInterface(Of T)
 
@@ -252,8 +255,15 @@ Namespace PermutationLibrary
             Next
         End Sub
 
-        'Streams the current permutation to the host thread securely using Semaphores, avoiding deadlock.
-        'Note that the corresponding code must be used in the host thread to receive the streamed data, given in the exampleStreamReceiver() method.
+        ''' <summary>
+        ''' Stream the current permutation to the host thread securely using Semaphores, avoiding deadlock.
+        ''' <para>Note that the corresponding code must be used in the host thread to receive the streamed data, given in the exampleStreamReceiver() method.</para>
+        ''' </summary>
+        ''' <param name="permutee">The permutee being modified.</param>
+        ''' <param name="stream">The stream permutations are piped through.</param>
+        ''' <param name="permutationAvle">Semaphore stating consumer availability.</param>
+        ''' <param name="permutationPost">Semaphore stating producer posting.</param>
+        ''' <param name="permutationLock">Semaphore stating consumer usage.</param>
         Private Sub OutputHandler(ByVal permutee() As Integer, ByRef stream As System.IO.MemoryStream,
                               ByRef permutationAvle As Threading.Semaphore,
                               ByRef permutationPost As Threading.Semaphore,
@@ -271,7 +281,9 @@ Namespace PermutationLibrary
             permutationLock.Release()
         End Sub
 
-        'Appends a new permutation to the results list by first generating the corresponding object permutation.
+        ''' <summary>Append a new permutation to the results list by first generating the corresponding object permutation.</summary>
+        ''' <param name="res">The result list of permutations. Modified by the function.</param>
+        ''' <param name="permutee">The permutee to be added; it is stored as an index list so must be converted to the corresponding objects.</param>
         Private Sub AddResultToList(ByRef res As List(Of T()), ByVal permutee As List(Of Integer))
             Dim permuteeAsTs As New List(Of T)
             For Each elem As Integer In permutee
@@ -280,8 +292,12 @@ Namespace PermutationLibrary
             res.Add(permuteeAsTs.ToArray)
         End Sub
 
-        'Converts the [permutee] to an array of Bytes to allow transmission over the defined stream.
-        'This is done by converting the element to its corresponding index value in [possibleValues].
+        ''' <summary>
+        ''' Convert the [permutee] to an array of Bytes to allow transmission over the defined stream.
+        ''' <para>This is done by converting the element to its corresponding index value in [possibleValues].</para>
+        ''' </summary>
+        ''' <param name="permutee">The permutee to be sent.</param>
+        ''' <returns>A Byte array of the permutee elements.</returns>
         Private Shared Function PermuteeToBytes(permutee() As Integer) As Byte()
             Dim permuteeCorrespondingIndices As New List(Of Byte)
             If permutee Is Nothing Then Throw New Exception
@@ -291,8 +307,9 @@ Namespace PermutationLibrary
             Return permuteeCorrespondingIndices.ToArray
         End Function
 
-        'The inverse operation to permuteeToBytes.
-        'Use this when reading data out of the stream.
+        ''' <summary>The inverse operation to permuteeToBytes. Used when reading data out of the stream.</summary>
+        ''' <param name="bs">The received Byte array</param>
+        ''' <returns>An object array of type T.</returns>
         Private Function BytesToPermutee(bs() As Byte) As T()
             Dim permuteeCorrespondingIndices As New List(Of T)
             If bs Is Nothing Then Throw New Exception
@@ -302,7 +319,10 @@ Namespace PermutationLibrary
             Return permuteeCorrespondingIndices.ToArray
         End Function
 
-        'A recursive sub for (O(n!)) permutation. Works by simply repeating the recurive procedure for every element in the permutee.
+        ''' <summary>A recursive sub for (O(n!)) permutation. Works by simply repeating the recurive procedure for every element in the permutee.</summary>
+        ''' <param name="res">The generated list of permutations.</param>
+        ''' <param name="permutee">The modified permutee.</param>
+        ''' <param name="n">The length of the section being permuted.</param>
         Private Sub BasicPermutation(ByRef res As List(Of T()), ByRef permutee As Integer(), ByRef n As Integer)
             If n = 1 Then
                 AddResultToList(res, permutee.ToList)
@@ -315,8 +335,12 @@ Namespace PermutationLibrary
             Next
         End Sub
 
-        'A simple function to generate a random permutation of length [sizeOfPermutation]. Can allow or disallow repeated elements.
-        'The seed is specified by the wrapper function getRandomPermutation(seed) method.
+        ''' <summary>
+        ''' Generate a random permutation of length [sizeOfPermutation]. Can allow or disallow repeated elements.
+        ''' <para>The seed is specified by the wrapper function getRandomPermutation(seed) method.</para>
+        ''' </summary>
+        ''' <param name="generator">The generator of type Random used to generate the permutation.</param>
+        ''' <returns>A new random permutation of type T.</returns>
         Private Function RandomPermutation(ByVal generator As Random) As List(Of T)
             Dim res As New List(Of T)
 
@@ -347,9 +371,12 @@ Namespace PermutationLibrary
         'These methods provide the main interface for meaningful utilisation of the code.
         '/////////////////////////
 
-        'Returns the number of permutations that the permutor will generate if called.
-        'Calucates differently depending on whether duplicate elements are allowed.
-        'A return value of -1 indicates more than 2^64 results are returned by permuting.
+        ''' <summary>
+        ''' Return the number of permutations that the permutor will generate if called.
+        ''' <para>Calucates differently depending on whether duplicate elements are allowed.</para>
+        ''' <para>A return value of -1 indicates more than 2^64 results are returned by permuting.</para>
+        ''' </summary>
+        ''' <returns>Long value of the number of permutations that would be generated.</returns>
         Public Function GetNoOfPermutations() As Long Implements IPermutorInterface(Of T).GetNoOfPermutations
             Try
                 If Not allowDuplicates Then
@@ -370,38 +397,44 @@ Namespace PermutationLibrary
             Return -1
         End Function
 
-        'Sets up the stream; call this first
+        ''' <summary>Set up the stream; call this before referencing GetPermutationFromStream() or other stream functionality.</summary>
         Public Sub InitStreamPermutor() Implements IPermutorInterface(Of T).InitStreamPermutor
             streamHandler = New PermutorStreamHandler(Me)
         End Sub
 
-        'Kill the stream permutor and its thread prematurely
+        ''' <summary>Kill the stream permutor and its thread prematurely.</summary>
         Public Sub KillStreamPermutor() Implements IPermutorInterface(Of T).KillStreamPermutor
             If streamHandler IsNot Nothing Then streamHandler.Dispose()
         End Sub
 
-        'Returns true if the stream is still active; use this to iterate through permutations
+        ''' <summary>Returns true if the stream is still active; use this to iterate through permutations.</summary>
         Public Function IsStreamActive() As Boolean Implements IPermutorInterface(Of T).IsStreamActive
             If streamHandler Is Nothing Then Return False
             Return streamHandler.StreamActive
         End Function
 
-        'Returns an array of the permutation and sets up the stream to send the next permutation
+        ''' <summary>Returns an array of the permutation and sets up the stream to send the next permutation.</summary>
         Public Function GetPermutationFromStream() As T() Implements IPermutorInterface(Of T).GetPermutationFromStream
             If streamHandler Is Nothing Then Return Nothing
             If Not streamHandler.StreamActive Then Return Nothing
             Return streamHandler.GetPermutation
         End Function
 
-        'Returns an array of the random permutation generated using the given seed. The seed defaults to using the system tick counter if not specified.
+        ''' <summary>Returns an array of the random permutation generated using the given seed.</summary>
         ''' <param name = "generator" >The Random object used to generate the permutation.</param>
         Public Function GetRandomPermutation(ByRef generator As Random) As T() Implements IPermutorInterface(Of T).GetRandomPermutation
             If generator Is Nothing Then Throw New Exception
             Return RandomPermutation(generator).ToArray
         End Function
 
-        'Generates every permutation and streams it through [stream].
-        'The permutor is set up by the [streamHandler] created by InitStreamPermutor().
+        ''' <summary>
+        ''' Generate every permutation and streams it through [stream].
+        ''' <para>The permutor is set up by the streamHandler created by InitStreamPermutor().</para>
+        ''' </summary>
+        ''' <param name="stream">The stream permutations are piped through.</param>
+        ''' <param name="permutationAvle">Semaphore stating consumer availability.</param>
+        ''' <param name="permutationPost">Semaphore stating producer posting.</param>
+        ''' <param name="permutationLock">Semaphore stating consumer usage.</param>
         Private Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
                                ByRef permutationAvle As Threading.Semaphore,
                                ByRef permutationPost As Threading.Semaphore,
@@ -430,9 +463,12 @@ Namespace PermutationLibrary
             streamHandler = Nothing
         End Sub
 
-        'Generates every permutation and returns it using a list.
-        'This may fail if the number of permutations is too high and VB cannot handle the list; in this case, use PermuteToStream().
-        '   (This occurs when the list reaches a 2GB object size or contains 2^28 references.)
+        ''' <summary>
+        ''' Generate every permutation and returns it using a list.
+        ''' <para>This may fail if the number of permutations is too high and VB cannot handle the list; in this case, use PermuteToStream().</para>
+        ''' <para>(This occurs when the list reaches a 2GB object size or contains 2^28 references.)</para>
+        ''' </summary>
+        ''' <returns>A list of permutations.</returns>
         Public Function PermuteToList() As List(Of T()) Implements IPermutorInterface(Of T).PermuteToList
             Validate(True)
 
@@ -449,8 +485,11 @@ Namespace PermutationLibrary
             Return res
         End Function
 
-        'Faster but specific method of permuting an array of length [possibleValues.Count] without repetition. Works using recursion in BasicPermutation().
-        'Basic permuting through a stream is not implemented because I'm lazy.
+        ''' <summary>
+        ''' Faster but specific method of permuting an array of length [possibleValues.Count] without repetition. Works using recursion in BasicPermutation().
+        ''' <para>Basic permuting through a stream is not implemented because I'm lazy.</para>
+        ''' </summary>
+        ''' <returns>A list of permutations.</returns>
         Public Function BasicPermuteToList() As List(Of T()) Implements IPermutorInterface(Of T).BasicPermuteToList
             Validate(True)
             Dim res As New List(Of T())
@@ -458,6 +497,8 @@ Namespace PermutationLibrary
             Return res
         End Function
 
+        ''' <summary>Disposes of the permutor.</summary>
+        ''' <param name="disposing">Whether the permutor should be disposed.</param>
         Protected Overridable Sub Dispose(disposing As Boolean)
             If disposed Then Return
             If disposing Then
@@ -467,14 +508,19 @@ Namespace PermutationLibrary
             disposed = True
         End Sub
 
+        ''' <summary>Disposes of the permutor.</summary>
         Public Sub Dispose() Implements IDisposable.Dispose, IPermutorInterface(Of T).Dispose
             Dispose(True)
             GC.SuppressFinalize(Me)
         End Sub
 
         '/////////////////////////
-        'This class provides a compact set of methods and attributes to make safely accessing the stream clean and simple.
+        'Provides a compact set of methods and attributes to make safely accessing the stream clean and simple.
         '/////////////////////////
+
+        ''' <summary>
+        ''' This class provides a compact set of methods and attributes to make safely accessing the stream clean and simple.
+        ''' </summary>
         Private Class PermutorStreamHandler
             Implements IDisposable
             Private disposed As Boolean = False
@@ -484,8 +530,11 @@ Namespace PermutationLibrary
             Private permutationAvle, permutationPost, permutationLock As Threading.Semaphore
             Private ReadOnly permutor As Permutor(Of T)
 
-            'Constructor that configures semaphores for safe data transfer.
-            'Also initiates the new thread that computes permutations
+            ''' <summary>
+            ''' Constructor that configures semaphores for safe data transfer.
+            ''' <para>Also initiates the new thread that computes permutations.</para>
+            ''' </summary>
+            ''' <param name="permutor">The corresponding permutor.</param>
             Public Sub New(permutor As Permutor(Of T))
                 permutationAvle = New Threading.Semaphore(1, 1)
                 permutationPost = New Threading.Semaphore(0, 1)
@@ -497,16 +546,16 @@ Namespace PermutationLibrary
 
             End Sub
 
-            'Returns true is the stream is active
+            ''' <summary>Returns true is the stream is active.</summary>
+            ''' <returns>Whether the stream is active.</returns>
             Public Function StreamActive() As Boolean
                 If stream.CanRead Then Return True
                 Me.Dispose()
                 Return False
             End Function
 
-            'Opens the lock, gets data from the stream, and closes it again for the permutor to post the next permutation.
-            'BUG: The returned bytes are of the wrong length and shortening it returns erroneous data.
-            '   A fix has been applied but its efficacy is not guaranteed!
+            ''' <summary>Opens the lock, gets data from the stream, and closes it again for the permutor to post the next permutation.</summary>
+            ''' <returns>The next permutation pulled from the stream.</returns>
             Public Function GetPermutation() As T()
                 Dim permutationBytes(permutor.GetSizeOfPermutation) As Byte
 
@@ -520,6 +569,8 @@ Namespace PermutationLibrary
                 Return permutor.BytesToPermutee(permutationBytes.Take(permutationBytes.Length - 1).ToArray)
             End Function
 
+            ''' <summary>Disposes of the streamPermutor.</summary>
+            ''' <param name="disposing">Whether the streamPermutor should be disposed.</param>
             Protected Overridable Sub Dispose(disposing As Boolean)
                 If disposed Then Return
 
@@ -534,6 +585,7 @@ Namespace PermutationLibrary
                 disposed = True
             End Sub
 
+            ''' <summary>Disposes of the streamPermutor.</summary>
             Public Sub Dispose() Implements IDisposable.Dispose
                 Dispose(True)
                 GC.SuppressFinalize(Me)
