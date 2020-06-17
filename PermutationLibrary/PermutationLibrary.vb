@@ -18,14 +18,18 @@ Namespace PermutationLibrary
         'These methods relate to initialisation and configuration of permutor attributes.
         '/////////////////////////
 
-        'Initialise the attributes that classify fully an instance of the permutor.
+        ''' <summary>Instantiate a permutor of type T with the specified parameters.</summary>
+        ''' <param name="sizeOfPermutation">The length of the returned permutations.</param>
+        ''' <param name="possibleValues">An array of the possible values the permutations can take from.</param>
+        ''' <param name="allowDuplicates">Whether returned permutations can use the same value multiple times.</param>
         Public Sub New(ByVal sizeOfPermutation As Integer, ByVal possibleValues() As T, ByVal allowDuplicates As Boolean)
             possibleValueIndices = New List(Of Integer)
             Configure(sizeOfPermutation, possibleValues, allowDuplicates)
         End Sub
 
-        ''' <param name="sizeOfPermutation">The length of the returned permutations.</param>
-        ''' <param name="possibleValues">An array of the possible values the permutations can take from.</param>
+        ''' <summary>Configure the permutor according to the new parameters.</summary>
+        ''' <param name="sizeOfPermutation">The new length of the returned permutations.</param>
+        ''' <param name="possibleValues">An array of the new possible values the permutations can take from.</param>
         ''' <param name="allowDuplicates">Whether returned permutations can use the same value multiple times.</param>
         Public Sub Configure(ByVal sizeOfPermutation As Integer, ByVal possibleValues() As T, ByVal allowDuplicates As Boolean) Implements IPermutorInterface(Of T).Configure
             Me.sizeOfPermutation = sizeOfPermutation
@@ -34,7 +38,7 @@ Namespace PermutationLibrary
             ConfigIndicesList()
         End Sub
 
-        ' Validates the current permutor configuration to ensure that it is valid, and returns a corresponding error message otherwise.
+        ''' <summary>Validate the current permutor configuration to ensure that it is valid, and returns a corresponding error message otherwise.</summary>
         ''' <param name="fromList">An optional parameter that ensures the resulting permutations can be returned as a list.</param>
         Public Sub Validate(Optional fromList As Boolean = False) Implements IPermutorInterface(Of T).Validate
             Dim exceptionStr As String = ""
@@ -72,7 +76,7 @@ Namespace PermutationLibrary
             If exceptionStr <> "" Then Throw New Exception(exceptionStr)
         End Sub
 
-        'Sets up the indices list which is used for permuting corresponding integer indices instead of objects of type T.
+        ''' <summary>Set up the indices list which is used for permuting corresponding integer indices instead of objects of type T.</summary>
         Private Sub ConfigIndicesList()
             If possibleValues Is Nothing Then Exit Sub
             Dim x As Integer = 0
@@ -83,7 +87,7 @@ Namespace PermutationLibrary
             Next
         End Sub
 
-        'Establishes the first permutation as an array size [sizeOfPermutation], with each element as [possibleValues.First]
+        ''' <summary>Establish the first permutation as an array size [sizeOfPermutation], with each element as [possibleValues.First].</summary>
         Private Function InitPermutingArray() As List(Of Integer)
             Dim permutingList As New List(Of Integer)
             For i As Integer = 0 To sizeOfPermutation - 1
@@ -94,30 +98,39 @@ Namespace PermutationLibrary
 
         'Getters and setters for the permutor attributes. Not used in the code but added here for the user.
 
+        ''' <summary>Set sizeOfPermutation to the specified value.</summary>
         ''' <param name="newPermutationSize">The length of the returned permutations.</param>
         Public Sub SetSizeOfPermutation(newPermutationSize As Integer) Implements IPermutorInterface(Of T).SetSizeOfPermutation
             sizeOfPermutation = newPermutationSize
         End Sub
 
+        ''' <summary>Set possibleValues to the specified value.</summary>
         ''' <param name="newPossibleValues">An array of the possible values the permutations can take from.</param>
         Public Sub SetPossibleValues(newPossibleValues As T()) Implements IPermutorInterface(Of T).SetPossibleValues
             possibleValues = newPossibleValues
             ConfigIndicesList()
         End Sub
 
+        ''' <summary>Set allowDuplicates to the specified value.</summary>
         ''' <param name="newAllowDuplicates">Whether returned permutations can use the same value multiple times.</param>
         Public Sub SetAllowDuplicates(newAllowDuplicates As Boolean) Implements IPermutorInterface(Of T).SetAllowDuplicates
             allowDuplicates = newAllowDuplicates
         End Sub
 
+        ''' <summary>Get the value of sizeOfPermutation.</summary>
+        ''' <returns>The current value of sizeOfPermutation.</returns>
         Public Function GetSizeOfPermutation() As Integer Implements IPermutorInterface(Of T).GetSizeOfPermutation
             Return sizeOfPermutation
         End Function
 
+        ''' <summary>Get the value of possibleValues.</summary>
+        ''' <returns>The current value of possibleValues.</returns>
         Public Function GetPossibleValues() As T() Implements IPermutorInterface(Of T).GetPossibleValues
             Return possibleValues.ToArray
         End Function
 
+        ''' <summary>Get the value of allowDuplicates.</summary>
+        ''' <returns>The current value of allowDuplicates.</returns>
         Public Function GetAllowDuplicates() As Boolean Implements IPermutorInterface(Of T).GetAllowDuplicates
             Return allowDuplicates
         End Function
@@ -126,11 +139,15 @@ Namespace PermutationLibrary
         'These methods provide basic mathematical and logical functionality.
         '/////////////////////////
 
+
+        ''' <summary>Calculates the factorial of a BigInteger. I don't know why. Probably to stop overflows.</summary>
+        ''' <returns>The value of y = x!</returns>
         Private Function Factorial(x As System.Numerics.BigInteger) As System.Numerics.BigInteger
             If x <= 1 Then Return 1
             Return x * Factorial(x - 1)
         End Function
 
+        ''' <summary>Swaps two integers. Is there not an inbuilt function provided by tuples or something?</summary>
         Private Shared Sub Swap(ByRef x As Integer, ByRef y As Integer)
             Dim temp As Integer = x
             x = y
@@ -141,8 +158,10 @@ Namespace PermutationLibrary
         'These methods provide logic functions that together generate permuations.
         '/////////////////////////
 
-        'Used to determine when the final permutation has been calculated
-        'The final permutation is reached when each element in [permutee] is the final value in [possibleValues]
+        ''' <summary>Returns a boolean on whether a permutee only contains the final element in the possibleValueIndices list.
+        ''' <para>Used to determine when the final permutation has been calculated.</para></summary>
+        ''' <param name="permutee">The input permutee</param>
+        ''' <returns>Whether the permutee contains only the final element at each index.</returns>
         Private Function PermuteeContainsOnlyFinalElement(ByVal permutee As List(Of Integer)) As Boolean
             If permutee.All(Function(elem) elem.Equals(possibleValueIndices.Last)) Then
                 Return True
@@ -150,9 +169,14 @@ Namespace PermutationLibrary
             Return False
         End Function
 
-        'Finds the next value for the [index] element of [permutee]
-        'The next element loops around to the first if [permutee(index)] is [possibleValues.Last]
-        'In this case, the [toNextColumn] flag is set to True.
+        ''' <summary>
+        ''' Find the next value for the [index] element of [permutee].
+        ''' <para>The next element loops around to the first if [permutee(index)] is [possibleValues.Last].</para>
+        ''' <para>In this case, the [toNextColumn] flag is set to True.</para>
+        ''' </summary>
+        ''' <param name="permutee">The permutee to be incremented.</param>
+        ''' <param name="toNextColumn">Whether the next column should then be incremented. Mutated by the function.</param>
+        ''' <param name="index">The current index of the permutee being incremented.</param>
         Private Sub GetNextPossibleColummValue(ByRef permutee As List(Of Integer), ByRef toNextColumn As Boolean, ByVal index As Integer)
             If possibleValueIndices.Last.Equals(permutee(index)) Then
                 permutee(index) = possibleValueIndices.First
@@ -162,9 +186,12 @@ Namespace PermutationLibrary
             End If
         End Sub
 
-        'Generates the next permutation by counting up in base [possibleValues.count] a number with [sizeOfPermutation] digits.
-        'Each digit corresponds to the index of that element in possibleValues.
-        'This generates every possible permutation with repetition.
+        ''' <summary>
+        ''' Generate the next permutation by counting up in base [possibleValues.count] a number with [sizeOfPermutation] digits.
+        ''' <para>Each digit corresponds to the index of that element in possibleValues.</para>
+        ''' <para>This generates every possible permutation with repetition.</para>
+        ''' </summary>
+        ''' <param name="permutee">The permutee to be incremented.</param>
         Private Sub FindNextPermutation(ByRef permutee As List(Of Integer))
             Dim traversalIndex As Integer = 0
             Dim toNextColumn As Boolean = False
@@ -172,9 +199,9 @@ Namespace PermutationLibrary
             GetNextPossibleColummValue(permutee, toNextColumn, 0)
 
             While toNextColumn = True And traversalIndex < sizeOfPermutation - 1
-                    toNextColumn = False
-                    traversalIndex += 1
-                    GetNextPossibleColummValue(permutee, toNextColumn, traversalIndex)
+                toNextColumn = False
+                traversalIndex += 1
+                GetNextPossibleColummValue(permutee, toNextColumn, traversalIndex)
             End While
 
             If Not allowDuplicates Then
@@ -193,8 +220,17 @@ Namespace PermutationLibrary
             End If
         End Sub
 
-        'Recursive procedure to generate distinct permutations.
-        'Traverses down the permutation, setting each element as a valid choice then recursing on the next element.
+        ''' <summary>
+        ''' A recursive procedure to generate distinct permutations.
+        ''' <para>Traverses down the permutation, setting each element as a valid choice then recursing on the next element.</para>
+        ''' </summary>
+        ''' <param name="permutee">The permutee being modified.</param>
+        ''' <param name="banlist">A list of all the possible values currently being used by other elements in the permutee.</param>
+        ''' <param name="curindex">The current index being iterated through.</param>
+        ''' <param name="stream">The stream permutations are piped through.</param>
+        ''' <param name="permutationAvle">Semaphore stating consumer availability.</param>
+        ''' <param name="permutationPost">Semaphore stating producer posting.</param>
+        ''' <param name="permutationLock">Semaphore stating consumer usage.</param>
         Private Sub FindDistinctPermutations(ByRef permutee As List(Of Integer), ByRef banlist As List(Of Integer), ByVal curindex As Integer,
                                              ByRef stream As System.IO.MemoryStream,
                                              ByRef permutationAvle As Threading.Semaphore,
