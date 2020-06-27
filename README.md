@@ -22,6 +22,8 @@ A class testing the library and demonstrating some of its functionality can be s
 
 ---
 
+- Bug with n-length perms from an array size n with no duplicates not generating any streams?
+- Fix C#/VB NuGet discrepancy to allow for C# port.
 - Clean up error throwing:
   - Add an error message resource table
   - Throw only well-defined errors and ensure validity of computation.
