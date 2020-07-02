@@ -14,7 +14,7 @@ namespace PermutorCSShowcase
         {
             //SetInputAsAlphabet();
 
-            Permutor<Char> permutor = new Permutor<char>(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES);
+            Permutor<char> permutor = new Permutor<char>(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES);
 
             //// LIST PERMUTING
             //Console.WriteLine("LIST PERMUTING");
