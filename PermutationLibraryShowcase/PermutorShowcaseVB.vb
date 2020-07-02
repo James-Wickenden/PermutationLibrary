@@ -1,7 +1,7 @@
 Imports System
 Imports PermutationLibrary
 
-Module PermutorShowcase
+Module PermutorShowcaseVB
     Sub Main()
         Dim PERMUTATION_SIZE As Integer = 25
         Dim INPUT_VARARRAY() As Char = {"a", "b", "c", "d", "e"}
@@ -22,8 +22,8 @@ Module PermutorShowcase
 
         '' BASIC LIST PERMUTING
         'Console.WriteLine("BASIC LIST PERMUTING")
-        'Dim permutedList As List(Of Char()) = permutor.BasicPermuteToList
-        'For Each permutation As String In permutedList
+        'Dim basicPermutedList As List(Of Char()) = permutor.BasicPermuteToList
+        'For Each permutation As String In basicPermutedList
         '    Console.WriteLine(permutation)
         'Next
 
@@ -42,10 +42,10 @@ Module PermutorShowcase
         'SetInputAsAlphabet(INPUT_VARARRAY)
         'permutor.Configure(40, INPUT_VARARRAY, True)
         'Dim generator As New Random
-        'Dim permuted As Char()
+        'Dim randomPermuted As Char()
         'For i As Integer = 1 To 9
-        '    permuted = permutor.GetRandomPermutation(generator)
-        '    Console.WriteLine(i & ". " & permuted)
+        '    randomPermuted = permutor.GetRandomPermutation(generator)
+        '    Console.WriteLine(i & ". " & randomPermuted)
         'Next
 
         '' DISPOSAL
