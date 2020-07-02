@@ -1,14 +1,14 @@
-# VB-Permutor
+# PermutationLibrary
 
 ## About
 
 ---
 
-A Visual Basic Permutation library to allow complex and custom permuting of generic objects.
+A .NET Permutation library to allow complex and custom permuting of generic objects. Written in VB.NET Framework 4.5.
 
-PermutationLibrary Version 1.18.2 (Updated 17/06/2020)
+PermutationLibrary Version 2.1.1 (Updated 02/07/2020)
 
-The online repository is available at <https://github.com/James-Wickenden/VB-Permutor>
+The online repository is available at <https://github.com/James-Wickenden/PermutationLibrary>
 
 The nuget package is available at <https://www.nuget.org/packages/PermutationLibrary>
 
@@ -18,17 +18,18 @@ A list of supported functionality is provided below, as well as a TODO for futur
 
 A class testing the library and demonstrating some of its functionality can be seen in the `PemutationLibraryShowcase` Project.
 
+Both VB and C# Showcases are provided.
+
 ## TODO
 
 ---
 
 - Bug with n-length perms from an array size n with no duplicates not generating any streams?
-- Fix C#/VB NuGet discrepancy to allow for C# port.
+- Fix C#/VB NuGet discrepancy.
 - Clean up error throwing:
   - Add an error message resource table
   - Throw only well-defined errors and ensure validity of computation.
 - Superpermutation function?
-- Port to C# .NET
 
 ## Functionality
 
