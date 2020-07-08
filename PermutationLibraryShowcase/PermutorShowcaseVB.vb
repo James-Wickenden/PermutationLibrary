@@ -54,7 +54,7 @@ Module PermutorShowcaseVB
 
     Private Sub SetInputAsAlphabet(ByRef INPUT_VARARRAY As Char())
         Dim alphabet As New List(Of Char)
-        For i As Integer = 0 To 26
+        For i As Integer = 0 To 25
             alphabet.Add(Microsoft.VisualBasic.Chr(97 + i))
         Next
         INPUT_VARARRAY = alphabet.ToArray

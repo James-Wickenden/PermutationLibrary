@@ -6,7 +6,7 @@
 
 A .NET Permutation library to allow complex and custom permuting of generic objects. Written in VB.NET Framework 4.5.
 
-PermutationLibrary Version 2.1.1 (Updated 02/07/2020)
+PermutationLibrary Version 2.1.3 (Updated 08/07/2020)
 
 The online repository is available at <https://github.com/James-Wickenden/PermutationLibrary>
 
@@ -24,7 +24,6 @@ Both VB and C# Showcases are provided.
 
 ---
 
-- Bug with n-length perms from an array size n with no duplicates not generating any streams?
 - KillStreamPermutor() immediate call throws an unexpected error!
 - Fix C#/VB NuGet discrepancy.
 - Clean up error throwing:

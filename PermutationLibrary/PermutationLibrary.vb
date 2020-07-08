@@ -241,7 +241,7 @@ Namespace PermutationLibrary
                                              ByRef permutationPost As Threading.Semaphore,
                                              ByRef permutationLock As Threading.Semaphore)
             For i As Integer = 0 To possibleValueIndices.Count - 1
-                If (banlist.Contains(i)) Then Continue For
+                If (banlist.Contains(i) And (curindex < permutee.Count)) Then Continue For
                 If (curindex = permutee.Count) Then
                     OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
                     Return
