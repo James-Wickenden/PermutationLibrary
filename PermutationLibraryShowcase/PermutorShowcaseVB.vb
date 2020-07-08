@@ -25,19 +25,16 @@ Module PermutorShowcaseVB
         '    Console.WriteLine(permutation)
         'Next
 
-        ' STREAM PERMUTING
-        permutor.InitStreamPermutor()
-        permutor.InitStreamPermutor()
-        permutor.InitStreamPermutor()
-        Console.WriteLine("STREAM PERMUTING")
-        Dim permutedStreamReceiver As Char()
-        permutor.InitStreamPermutor()
-        While permutor.IsStreamActive
-            permutedStreamReceiver = permutor.GetPermutationFromStream
-            Console.WriteLine(permutedStreamReceiver)
-        End While
-        Console.WriteLine("Generated " & permutor.GetNoOfPermutations & " permutations.")
-        permutor.KillStreamPermutor()
+        '' STREAM PERMUTING
+        'Console.WriteLine("STREAM PERMUTING")
+        'Dim permutedStreamReceiver As Char()
+        'permutor.InitStreamPermutor()
+        'While permutor.IsStreamActive
+        '    permutedStreamReceiver = permutor.GetPermutationFromStream
+        '    Console.WriteLine(permutedStreamReceiver)
+        'End While
+        'Console.WriteLine("Generated " & permutor.GetNoOfPermutations & " permutations.")
+
         '' RANDOM PERMUTING
         'Console.WriteLine("RANDOM PERMUTING")
         'SetInputAsAlphabet(INPUT_VARARRAY)

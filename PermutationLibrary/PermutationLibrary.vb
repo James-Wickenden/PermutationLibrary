@@ -11,6 +11,7 @@ Namespace PermutationLibrary
 
         'https://github.com/James-Wickenden/VB-Permutor
         Private disposed As Boolean = False
+        Private ctsList As New List(Of CancellationTokenSource)
         Private cancellationToken As CancellationToken
 
         Private sizeOfPermutation As Integer
@@ -278,15 +279,18 @@ Namespace PermutationLibrary
             If Not allowDuplicates And permutee.Distinct.Count <> permutee.Length Then Exit Sub
             Dim permuteeIndexBytes() As Byte = PermuteeToBytes(permutee)
 
-            permutationAvle.WaitOne()
-            permutationLock.WaitOne()
-            '/// CRITICAL SECTION START
-            cancellationToken.ThrowIfCancellationRequested()
-            stream.Position = 0
-            stream.Write(permuteeIndexBytes, 0, permuteeIndexBytes.Length)
-            '/// CRITICAL SECTION END
-            permutationPost.Release()
-            permutationLock.Release()
+            Try
+                permutationAvle.WaitOne()
+                permutationLock.WaitOne()
+                '/// CRITICAL SECTION START
+                stream.Position = 0
+                stream.Write(permuteeIndexBytes, 0, permuteeIndexBytes.Length)
+                '/// CRITICAL SECTION END
+                permutationPost.Release()
+                permutationLock.Release()
+            Catch ex As Exception When TypeOf ex Is ObjectDisposedException Or TypeOf ex Is SemaphoreFullException
+                Throw New OperationCanceledException()
+            End Try
         End Sub
 
         ''' <summary>Append a new permutation to the results list by first generating the corresponding object permutation.</summary>
@@ -407,7 +411,7 @@ Namespace PermutationLibrary
 
         ''' <summary>Set up the stream; call this before referencing GetPermutationFromStream() or other stream functionality.</summary>
         Public Sub InitStreamPermutor() Implements IPermutorInterface(Of T).InitStreamPermutor
-            If streamHandler IsNot Nothing Then streamHandler.ThreadAbort()
+            KillStreamPermutor()
             streamHandler = New PermutorStreamHandler(Me)
         End Sub
 
@@ -445,10 +449,10 @@ Namespace PermutationLibrary
         ''' <param name="permutationPost">Semaphore stating producer posting.</param>
         ''' <param name="permutationLock">Semaphore stating consumer usage.</param>
         Private Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
-                                   ByRef permutationAvle As Threading.Semaphore,
-                                   ByRef permutationPost As Threading.Semaphore,
-                                   ByRef permutationLock As Threading.Semaphore,
-                                   ByVal cancellationToken As Threading.CancellationToken)
+                                   ByRef permutationAvle As Semaphore,
+                                   ByRef permutationPost As Semaphore,
+                                   ByRef permutationLock As Semaphore,
+                                   ByRef cancellationTokenSource As CancellationTokenSource)
 
             Validate(False)
             If stream Is Nothing Then Throw New Exception
@@ -457,7 +461,8 @@ Namespace PermutationLibrary
 
             If Not stream.CanRead Then Exit Sub
 
-            Me.cancellationToken = cancellationToken
+            ctsList.Add(cancellationTokenSource)
+            Me.cancellationToken = cancellationTokenSource.Token
             stream.Capacity = sizeOfPermutation
 
             Try
@@ -521,6 +526,9 @@ Namespace PermutationLibrary
             If disposed Then Return
             If disposing Then
                 If streamHandler IsNot Nothing Then streamHandler.Dispose()
+                For Each cts As CancellationTokenSource In ctsList
+                    cts.Dispose()
+                Next
             End If
 
             disposed = True
@@ -558,18 +566,30 @@ Namespace PermutationLibrary
                 permutationAvle = New Semaphore(1, 1)
                 permutationPost = New Semaphore(0, 1)
                 permutationLock = New Semaphore(1, 1)
-                permutationThread = New Thread(New Threading.ThreadStart(Sub() permutor.StreamPermutor(stream,
-                                                                                                       permutationAvle, permutationPost, permutationLock,
-                                                                                                       cancellationTokenSource.Token)))
+
+                permutationThread = New Thread(New ThreadStart(Sub() permutor.StreamPermutor(stream,
+                                                                                             permutationAvle, permutationPost, permutationLock,
+                                                                                             cancellationTokenSource)))
 
                 Me.permutor = permutor
                 permutationThread.Start()
 
             End Sub
 
-            Public Sub ThreadAbort()
+            Private Sub ThreadAbort()
+                If permutationThread Is Nothing Then Exit Sub
+                If Not permutationThread.IsAlive Then Exit Sub
+
                 cancellationTokenSource.Cancel()
 
+                Try
+                    permutationAvle.Release()
+                    permutationPost.WaitOne(100)
+                    permutationLock.WaitOne(100)
+                    permutationAvle.Release()
+                    permutationLock.Release()
+                Catch ex As SemaphoreFullException
+                End Try
             End Sub
 
             ''' <summary>Returns true is the stream is active.</summary>
@@ -601,12 +621,12 @@ Namespace PermutationLibrary
                 If disposed Then Return
 
                 If disposing Then
+                    ThreadAbort()
+
                     permutationAvle.Dispose()
                     permutationPost.Dispose()
                     permutationLock.Dispose()
-                    ThreadAbort()
 
-                    cancellationTokenSource.Dispose()
                     stream.Dispose()
                 End If
 
