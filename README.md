@@ -16,7 +16,7 @@ Provides framework to allow generic permuting of arrays, either with or without 
 The permutator can handle up to 255 possible values when streaming.
 A list of supported functionality is provided below, as well as a TODO for future functionality.
 
-A class testing the library and demonstrating some of its functionality can be seen in the `PemutationLibraryShowcase` Project.
+A class testing the library and demonstrating some of its functionality can be seen in the `PermutationLibraryShowcase` Project.
 
 Both VB and C# Showcases are provided.
 

@@ -446,6 +446,8 @@ Namespace PermutationLibrary
             If permutationAvle Is Nothing Or permutationPost Is Nothing Or permutationLock Is Nothing Then Throw New Exception
 
             Dim permutee As List(Of Integer) = InitPermutingArray()
+
+            If Not stream.CanRead Then Exit Sub
             stream.Capacity = sizeOfPermutation
 
             If allowDuplicates Then
