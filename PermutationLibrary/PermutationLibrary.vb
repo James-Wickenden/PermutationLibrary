@@ -1,5 +1,6 @@
 ﻿Option Strict On
 Imports System.Runtime.CompilerServices
+Imports System.Threading
 
 Namespace PermutationLibrary
 
@@ -10,6 +11,7 @@ Namespace PermutationLibrary
 
         'https://github.com/James-Wickenden/VB-Permutor
         Private disposed As Boolean = False
+        Private cancellationToken As CancellationToken
 
         Private sizeOfPermutation As Integer
         Private possibleValues() As T
@@ -237,9 +239,10 @@ Namespace PermutationLibrary
         ''' <param name="permutationLock">Semaphore stating consumer usage.</param>
         Private Sub FindDistinctPermutations(ByRef permutee As List(Of Integer), ByRef banlist As List(Of Integer), ByVal curindex As Integer,
                                              ByRef stream As System.IO.MemoryStream,
-                                             ByRef permutationAvle As Threading.Semaphore,
-                                             ByRef permutationPost As Threading.Semaphore,
-                                             ByRef permutationLock As Threading.Semaphore)
+                                             ByRef permutationAvle As Semaphore,
+                                             ByRef permutationPost As Semaphore,
+                                             ByRef permutationLock As Semaphore)
+
             For i As Integer = 0 To possibleValueIndices.Count - 1
                 If (banlist.Contains(i) And (curindex < permutee.Count)) Then Continue For
                 If (curindex = permutee.Count) Then
@@ -269,12 +272,16 @@ Namespace PermutationLibrary
                               ByRef permutationAvle As Threading.Semaphore,
                               ByRef permutationPost As Threading.Semaphore,
                               ByRef permutationLock As Threading.Semaphore)
+
+            cancellationToken.ThrowIfCancellationRequested()
+
             If Not allowDuplicates And permutee.Distinct.Count <> permutee.Length Then Exit Sub
             Dim permuteeIndexBytes() As Byte = PermuteeToBytes(permutee)
 
             permutationAvle.WaitOne()
             permutationLock.WaitOne()
             '/// CRITICAL SECTION START
+            cancellationToken.ThrowIfCancellationRequested()
             stream.Position = 0
             stream.Write(permuteeIndexBytes, 0, permuteeIndexBytes.Length)
             '/// CRITICAL SECTION END
@@ -400,6 +407,7 @@ Namespace PermutationLibrary
 
         ''' <summary>Set up the stream; call this before referencing GetPermutationFromStream() or other stream functionality.</summary>
         Public Sub InitStreamPermutor() Implements IPermutorInterface(Of T).InitStreamPermutor
+            If streamHandler IsNot Nothing Then streamHandler.ThreadAbort()
             streamHandler = New PermutorStreamHandler(Me)
         End Sub
 
@@ -437,33 +445,40 @@ Namespace PermutationLibrary
         ''' <param name="permutationPost">Semaphore stating producer posting.</param>
         ''' <param name="permutationLock">Semaphore stating consumer usage.</param>
         Private Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
-                               ByRef permutationAvle As Threading.Semaphore,
-                               ByRef permutationPost As Threading.Semaphore,
-                               ByRef permutationLock As Threading.Semaphore)
+                                   ByRef permutationAvle As Threading.Semaphore,
+                                   ByRef permutationPost As Threading.Semaphore,
+                                   ByRef permutationLock As Threading.Semaphore,
+                                   ByVal cancellationToken As Threading.CancellationToken)
 
             Validate(False)
             If stream Is Nothing Then Throw New Exception
             If permutationAvle Is Nothing Or permutationPost Is Nothing Or permutationLock Is Nothing Then Throw New Exception
-
             Dim permutee As List(Of Integer) = InitPermutingArray()
 
             If Not stream.CanRead Then Exit Sub
+
+            Me.cancellationToken = cancellationToken
             stream.Capacity = sizeOfPermutation
 
-            If allowDuplicates Then
-                Do
+            Try
+                If allowDuplicates Then
+                    Do
+                        OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
+                        FindNextPermutation(permutee)
+                    Loop Until PermuteeContainsOnlyFinalElement(permutee)
                     OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
-                    FindNextPermutation(permutee)
-                Loop Until PermuteeContainsOnlyFinalElement(permutee)
-                OutputHandler(permutee.ToArray, stream, permutationAvle, permutationPost, permutationLock)
-            Else
-                FindDistinctPermutations(permutee, New List(Of Integer), 0,
-                                         stream, permutationAvle, permutationPost, permutationLock)
-            End If
+                Else
+                    FindDistinctPermutations(permutee, New List(Of Integer), 0,
+                                             stream, permutationAvle, permutationPost, permutationLock)
+                End If
 
-            permutationAvle.WaitOne()
-            stream.Close()
-            streamHandler = Nothing
+                cancellationToken.ThrowIfCancellationRequested()
+                permutationAvle.WaitOne()
+                stream.Close()
+                streamHandler = Nothing
+
+            Catch ex As OperationCanceledException
+            End Try
         End Sub
 
         ''' <summary>
@@ -528,6 +543,7 @@ Namespace PermutationLibrary
             Implements IDisposable
             Private disposed As Boolean = False
 
+            Private cancellationTokenSource As New CancellationTokenSource()
             Private stream As System.IO.MemoryStream = New System.IO.MemoryStream()
             Private permutationThread As Threading.Thread
             Private permutationAvle, permutationPost, permutationLock As Threading.Semaphore
@@ -539,13 +555,20 @@ Namespace PermutationLibrary
             ''' </summary>
             ''' <param name="permutor">The corresponding permutor.</param>
             Public Sub New(permutor As Permutor(Of T))
-                permutationAvle = New Threading.Semaphore(1, 1)
-                permutationPost = New Threading.Semaphore(0, 1)
-                permutationLock = New Threading.Semaphore(1, 1)
-                permutationThread = New Threading.Thread(New Threading.ThreadStart(Sub() permutor.StreamPermutor(stream, permutationAvle, permutationPost, permutationLock)))
+                permutationAvle = New Semaphore(1, 1)
+                permutationPost = New Semaphore(0, 1)
+                permutationLock = New Semaphore(1, 1)
+                permutationThread = New Thread(New Threading.ThreadStart(Sub() permutor.StreamPermutor(stream,
+                                                                                                       permutationAvle, permutationPost, permutationLock,
+                                                                                                       cancellationTokenSource.Token)))
 
                 Me.permutor = permutor
                 permutationThread.Start()
+
+            End Sub
+
+            Public Sub ThreadAbort()
+                cancellationTokenSource.Cancel()
 
             End Sub
 
@@ -581,7 +604,9 @@ Namespace PermutationLibrary
                     permutationAvle.Dispose()
                     permutationPost.Dispose()
                     permutationLock.Dispose()
-                    permutationThread = Nothing
+                    ThreadAbort()
+
+                    cancellationTokenSource.Dispose()
                     stream.Dispose()
                 End If
 

@@ -3,9 +3,9 @@ Imports PermutationLibrary
 
 Module PermutorShowcaseVB
     Sub Main()
-        Dim PERMUTATION_SIZE As Integer = 3
+        Dim PERMUTATION_SIZE As Integer = 1
         Dim INPUT_VARARRAY() As Char = {"a", "b", "c", "d", "e"}
-        Dim ALLOW_DUPLICATES As Boolean = False
+        Dim ALLOW_DUPLICATES As Boolean = True
         'SetInputAsAlphabet(INPUT_VARARRAY)
 
         Dim permutor As New Permutor(Of Char)(PERMUTATION_SIZE, INPUT_VARARRAY, ALLOW_DUPLICATES)
@@ -26,6 +26,9 @@ Module PermutorShowcaseVB
         'Next
 
         ' STREAM PERMUTING
+        permutor.InitStreamPermutor()
+        permutor.InitStreamPermutor()
+        permutor.InitStreamPermutor()
         Console.WriteLine("STREAM PERMUTING")
         Dim permutedStreamReceiver As Char()
         permutor.InitStreamPermutor()
@@ -34,7 +37,7 @@ Module PermutorShowcaseVB
             Console.WriteLine(permutedStreamReceiver)
         End While
         Console.WriteLine("Generated " & permutor.GetNoOfPermutations & " permutations.")
-
+        permutor.KillStreamPermutor()
         '' RANDOM PERMUTING
         'Console.WriteLine("RANDOM PERMUTING")
         'SetInputAsAlphabet(INPUT_VARARRAY)
