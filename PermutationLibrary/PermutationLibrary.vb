@@ -149,7 +149,7 @@ Namespace PermutationLibrary
 
         ''' <summary>Calculates the factorial of a BigInteger. I don't know why. Probably to stop overflows.</summary>
         ''' <returns>The value of y = x!</returns>
-        Private Function Factorial(x As System.Numerics.BigInteger) As System.Numerics.BigInteger
+        Private Function Factorial(x As Numerics.BigInteger) As Numerics.BigInteger
             If x <= 1 Then Return 1
             Return x * Factorial(x - 1)
         End Function
@@ -239,7 +239,7 @@ Namespace PermutationLibrary
         ''' <param name="permutationPost">Semaphore stating producer posting.</param>
         ''' <param name="permutationLock">Semaphore stating consumer usage.</param>
         Private Sub FindDistinctPermutations(ByRef permutee As List(Of Integer), ByRef banlist As List(Of Integer), ByVal curindex As Integer,
-                                             ByRef stream As System.IO.MemoryStream,
+                                             ByRef stream As IO.MemoryStream,
                                              ByRef permutationAvle As Semaphore,
                                              ByRef permutationPost As Semaphore,
                                              ByRef permutationLock As Semaphore)
@@ -269,10 +269,10 @@ Namespace PermutationLibrary
         ''' <param name="permutationAvle">Semaphore stating consumer availability.</param>
         ''' <param name="permutationPost">Semaphore stating producer posting.</param>
         ''' <param name="permutationLock">Semaphore stating consumer usage.</param>
-        Private Sub OutputHandler(ByVal permutee() As Integer, ByRef stream As System.IO.MemoryStream,
-                              ByRef permutationAvle As Threading.Semaphore,
-                              ByRef permutationPost As Threading.Semaphore,
-                              ByRef permutationLock As Threading.Semaphore)
+        Private Sub OutputHandler(ByVal permutee() As Integer, ByRef stream As IO.MemoryStream,
+                              ByRef permutationAvle As Semaphore,
+                              ByRef permutationPost As Semaphore,
+                              ByRef permutationLock As Semaphore)
 
             cancellationToken.ThrowIfCancellationRequested()
 
@@ -392,13 +392,13 @@ Namespace PermutationLibrary
         Public Function GetNoOfPermutations() As Long Implements IPermutorInterface(Of T).GetNoOfPermutations
             Try
                 If Not allowDuplicates Then
-                    Dim numerator As System.Numerics.BigInteger = Factorial(possibleValues.Length)
-                    Dim denominator As System.Numerics.BigInteger = Factorial(possibleValues.Length - sizeOfPermutation)
-                    Dim res As System.Numerics.BigInteger = System.Numerics.BigInteger.Divide(numerator, denominator)
+                    Dim numerator As Numerics.BigInteger = Factorial(possibleValues.Length)
+                    Dim denominator As Numerics.BigInteger = Factorial(possibleValues.Length - sizeOfPermutation)
+                    Dim res As Numerics.BigInteger = Numerics.BigInteger.Divide(numerator, denominator)
 
                     Return CLng(res)
                 Else
-                    Dim res As New System.Numerics.BigInteger(Math.Pow(possibleValues.Length, sizeOfPermutation))
+                    Dim res As New Numerics.BigInteger(Math.Pow(possibleValues.Length, sizeOfPermutation))
 
                     Return CLng(res)
                 End If
@@ -448,7 +448,7 @@ Namespace PermutationLibrary
         ''' <param name="permutationAvle">Semaphore stating consumer availability.</param>
         ''' <param name="permutationPost">Semaphore stating producer posting.</param>
         ''' <param name="permutationLock">Semaphore stating consumer usage.</param>
-        Private Sub StreamPermutor(ByRef stream As System.IO.MemoryStream,
+        Private Sub StreamPermutor(ByRef stream As IO.MemoryStream,
                                    ByRef permutationAvle As Semaphore,
                                    ByRef permutationPost As Semaphore,
                                    ByRef permutationLock As Semaphore,
@@ -552,9 +552,9 @@ Namespace PermutationLibrary
             Private disposed As Boolean = False
 
             Private cancellationTokenSource As New CancellationTokenSource()
-            Private stream As System.IO.MemoryStream = New System.IO.MemoryStream()
-            Private permutationThread As Threading.Thread
-            Private permutationAvle, permutationPost, permutationLock As Threading.Semaphore
+            Private stream As IO.MemoryStream = New IO.MemoryStream()
+            Private permutationThread As Thread
+            Private permutationAvle, permutationPost, permutationLock As Semaphore
             Private ReadOnly permutor As Permutor(Of T)
 
             ''' <summary>
@@ -576,6 +576,10 @@ Namespace PermutationLibrary
 
             End Sub
 
+            ''' <summary>
+            ''' Closes the active thread by activating the cancellationTokenSource object.
+            ''' Then tries to ensure that the thread is not caught in the semaphore mutex.
+            ''' </summary>
             Private Sub ThreadAbort()
                 If permutationThread Is Nothing Then Exit Sub
                 If Not permutationThread.IsAlive Then Exit Sub

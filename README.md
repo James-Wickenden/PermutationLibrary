@@ -251,4 +251,4 @@ There are several parameters held by the Permutor which determine the output of 
     permutor.Dispose();
     ```
 
-    Disposes the permutor's internal PermutorStreamHandler, and sets the `disposed` flag.
+    Disposes the permutor's internal PermutorStreamHandler and the list of CancellationTokenSource objects, and sets the `disposed` flag.
