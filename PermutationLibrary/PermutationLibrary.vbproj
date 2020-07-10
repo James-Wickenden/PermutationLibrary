@@ -37,7 +37,12 @@
     <IsPackable>true</IsPackable>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+	<PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+  <PropertyGroup>
+  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+</PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>

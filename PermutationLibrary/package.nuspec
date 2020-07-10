@@ -4,33 +4,33 @@
     <!--*-->
     <id>PermutationLibrary</id>
     <!--*-->
-    <version>1.17.0</version>
+    <version>2.2.0</version>
     <title>PermutationLibrary</title>
     <!--*-->
     <authors>James Wickenden</authors>
     <owners>James Wickenden</owners>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <icon>permutoricon.png</icon>
     <!--
-    <licenseUrl></licenseUrl>
     <projectUrl></projectUrl>
     <iconUrl></iconUrl>
 -->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <!--*-->
-    <description>A VB.NET Permutation library to allow complex and custom permuting of generic objects.
-Built on VB.NET 4.5 Framework.
-
-
-https://github.com/James-Wickenden/VB-Permutor</description>
+    <description>A Permutation library to allow complex and custom permuting of generic objects. 
+Built on VB.NET 4.5 Framework, but compatible with C#.
+C# and VB showcases, as well as source can be found at 
+https://github.com/James-Wickenden/PermutationLibrary</description>
     <!--*-->
-    <releaseNotes>Updates found at https://github.com/James-Wickenden/VB-Permutor</releaseNotes>
+    <releaseNotes>Updates found at https://github.com/James-Wickenden/PermutationLibrary</releaseNotes>
     <copyright>
     </copyright>
     <tags>
     </tags>
     <dependencies>
-      <!--
-      <dependency id="SampleDependency" version="1.0" />
--->
     </dependencies>
   </metadata>
+  <files>
+    <file src="permutoricon.png" />
+  </files>
 </package>

@@ -6,7 +6,7 @@
 
 A .NET Permutation library to allow complex and custom permuting of generic objects. Written in VB.NET Framework 4.5.
 
-PermutationLibrary Version 2.1 (Updated 10/07/2020)
+PermutationLibrary Version 2.2 (Updated 10/07/2020)
 
 The online repository is available at <https://github.com/James-Wickenden/PermutationLibrary>
 
